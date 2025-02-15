@@ -1,7 +1,6 @@
 #include "Rendering.hpp"
 
 
-
 adamTexture::adamTexture()
 {
   texture = nullptr;
@@ -132,8 +131,9 @@ GameWindow::GameWindow()
 {
   window = nullptr;
   renderer = nullptr;
-  initAll(800, 600);
-
+  screenW = 640;
+  screenH = 360;
+  initAll();
 
   //font = NULL;
   //initAll(800, 600, &window, &renderer, &font); 
@@ -143,7 +143,10 @@ GameWindow::GameWindow(int SCREENW, int SCREENH)
 {
   window = nullptr;
   renderer = nullptr;
-  initAll(SCREENW, SCREENH);
+  screenW = SCREENW;
+  screenH = SCREENH;
+  globalRenderScale = screenW / 640;
+  initAll();
 }
 
 GameWindow::~GameWindow()
@@ -151,25 +154,28 @@ GameWindow::~GameWindow()
   aSDL_Close();
 }
 
-void GameWindow::initAll(int SCREENW, int SCREENH)
-{
-  
+void GameWindow::initAll()
+{ 
   //std::string fontString = "assets/Arial.ttf";
 
-  window = ainitWindow("Test Game", SCREENW, SCREENH);
+  window = ainitWindow();
   if(window == nullptr)
       exit(1);
 
-  renderer = ainitRenderer(window);
+  renderer = ainitRenderer();
   if(renderer == nullptr)
       exit(1);  
 }
 
-// ------------------------------------------------------------
-
+void GameWindow::resizeWindow(int newW, int newH)
+{
+  screenW = newW;
+  screenH = newH;
+  SDL_SetWindowSize(window, screenW, screenH);
+}
 
 //Initiates SDL, SDL_image, and SDL_TTF with a window
-SDL_Window* ainitWindow(std::string windowName, int SCREEN_WIDTH, int SCREEN_HEIGHT)
+SDL_Window* GameWindow::ainitWindow()
 {
 
   SDL_Window* tempWindow = nullptr;
@@ -187,7 +193,7 @@ SDL_Window* ainitWindow(std::string windowName, int SCREEN_WIDTH, int SCREEN_HEI
 		return nullptr;
 	}
 
-  tempWindow = SDL_CreateWindow(windowName.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+  tempWindow = SDL_CreateWindow("Test Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenW, screenH, SDL_WINDOW_SHOWN);
 
   if(tempWindow == nullptr)
   {
@@ -214,23 +220,24 @@ SDL_Window* ainitWindow(std::string windowName, int SCREEN_WIDTH, int SCREEN_HEI
 }
 
 //Initiates a renderer with vsync optional
-SDL_Renderer* ainitRenderer(SDL_Window* window, bool vsync)
+SDL_Renderer* GameWindow::ainitRenderer(bool vsync)
 {
   SDL_Renderer* tempRenderer = nullptr;
-  if(vsync)
-      tempRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  else
-      tempRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+  tempRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | (vsync) ? SDL_RENDERER_PRESENTVSYNC : 0);
 
   if(tempRenderer == nullptr)
   {
-      std::cout << "Renderer Error" << SDL_GetError() << std::endl;
-      return nullptr;
+    std::cout << "Renderer Error" << SDL_GetError() << std::endl;
+    return nullptr;
   }
 
   SDL_SetRenderDrawColor(tempRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+  //SDL_RenderSetLogicalSize(tempRenderer, 640, 360);
   return tempRenderer;
 }
+
+// ------------------------------------------------------------
+
 
 
 

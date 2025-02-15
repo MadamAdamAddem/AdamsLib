@@ -16,13 +16,21 @@ public:
   GameWindow(int SCREENW, int SCREENH);
   ~GameWindow();
 
+
+  void initAll();
+  void resizeWindow(int newW, int newH);
+
+  SDL_Renderer* ainitRenderer(bool vsync = false);
+  SDL_Window* ainitWindow();
+
+
   SDL_Renderer* getRenderer() {return renderer;}
   SDL_Window* getWindow() {return window;}
-
-  void initAll(int SCREENW, int SCREENH);
-
   SDL_Window* window = nullptr;
   SDL_Renderer* renderer = nullptr;
+
+  int screenW, screenH;
+  float globalRenderScale;
   //TTF_Font* font;
 };
 
@@ -63,7 +71,6 @@ private:
 void aSDL_Close();
 //void initAll(int SCREENW, int SCREENH, SDL_Window** window, SDL_Renderer** renderer);
 //void initAll(int SCREENW, int SCREENH, SDL_Window** window, SDL_Renderer** renderer, TTF_Font** font);
-SDL_Renderer* ainitRenderer(SDL_Window* window, bool vsync = false);
-SDL_Window* ainitWindow(std::string windowName, int SCREEN_WIDTH, int SCREEN_HEIGHT);
+
 
 extern GameWindow gameWindow;

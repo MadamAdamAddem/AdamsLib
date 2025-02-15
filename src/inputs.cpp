@@ -24,8 +24,10 @@ bool handleEvents(SDL_Event* e)
       
     if(e->type == SDL_KEYDOWN)
     {
-      if(e->key.keysym.sym == SDLK_ESCAPE)
-      {}
+      if(e->key.keysym.sym == SDLK_o)
+      {
+        SDL_SetWindowSize(gameWindow.window, 1280, 720);
+      }
     }
     
   }

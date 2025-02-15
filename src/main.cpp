@@ -1,7 +1,6 @@
 #include "Rendering.hpp"
 #include "Inputs.hpp"
 
-SDL_Window* window;
 GameWindow gameWindow;
 
 
@@ -10,7 +9,6 @@ int main()
   Uint32 frameTime;
   SDL_Event e;
   
-  int test;
   SDL_Renderer* renderer = gameWindow.getRenderer();
   adamTexture text;
   text.loadFromFile("buttonBlank.png", renderer);
