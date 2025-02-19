@@ -28,7 +28,7 @@ BasicNode::BasicNode()
   texture = new AdamTexture;
   texture->loadFromFile("testure.png", gameWindow.renderer);
 
-  testComponent = new HealthComponent;
+  testComponent = new InputComponent;
 }
 
 BasicNode::~BasicNode()
@@ -51,9 +51,10 @@ void BasicNode::performLogic()
 
 InputComponent::InputComponent()
 {
-
+  
 }
 
+//implement
 InputComponent::~InputComponent()
 {
 
@@ -61,7 +62,7 @@ InputComponent::~InputComponent()
 
 void InputComponent::performLogic(BasicNode* parent)
 {
-
+  
 }
 
 // ------------------------------------------------------------

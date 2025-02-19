@@ -58,7 +58,6 @@ public:
   Component* testComponent;
 };
 
-
 class Scene
 {
 public:
@@ -72,5 +71,5 @@ public:
   SceneNode* testNode;
 };
 
-
+extern std::vector<SDL_Event> recentInputs;
 

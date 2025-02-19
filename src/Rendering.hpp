@@ -1,13 +1,13 @@
 #pragma once
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
+#include <vector>
 
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 class Scene;
+
 
 class GameWindow
 {
