@@ -26,7 +26,7 @@ bool handleEvents(SDL_Event* e)
     {
       if(e->key.keysym.sym == SDLK_o)
       {
-        SDL_SetWindowSize(gameWindow.window, 1280, 720);
+        gameWindow.resizeWindow(640, 360);
       }
     }
     

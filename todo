@@ -1,0 +1,13 @@
+To Do:
+  Figure out how to get input into input component
+
+
+Polish:
+  Make game run exactly once every 16ms
+
+
+
+Done:
+  //Create Scene and Node objects
+  //Allow for scaling at 16:9 resolutions
+

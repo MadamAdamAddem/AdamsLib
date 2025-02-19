@@ -7,7 +7,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-
+class Scene;
 
 class GameWindow
 {
@@ -19,28 +19,33 @@ public:
 
   void initAll();
   void resizeWindow(int newW, int newH);
+  void renderGame();
+  void performGameLogic();
 
   SDL_Renderer* ainitRenderer(bool vsync = false);
   SDL_Window* ainitWindow();
-
-
   SDL_Renderer* getRenderer() {return renderer;}
   SDL_Window* getWindow() {return window;}
+
+
   SDL_Window* window = nullptr;
   SDL_Renderer* renderer = nullptr;
 
+  Scene* lol;
+
+
   int screenW, screenH;
-  float globalRenderScale;
+  int globalRenderScale;
   //TTF_Font* font;
 };
 
-class adamTexture
+class AdamTexture
 {
 public:
 
-  adamTexture();
-  adamTexture(const std::string path, SDL_Renderer* renderer);
-  ~adamTexture();
+  AdamTexture();
+  AdamTexture(const std::string path, SDL_Renderer* renderer);
+  ~AdamTexture();
 
   void free();
 
@@ -54,7 +59,7 @@ public:
 
   void setAlphaLevel(Uint8 alpha);
 
-  void replaceTexture(adamTexture* newTexture);
+  void replaceTexture(AdamTexture* newTexture);
 
   int getWidth() {return tWidth;}
   int getHeight() {return tHeight;}

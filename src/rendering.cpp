@@ -1,24 +1,25 @@
 #include "Rendering.hpp"
+#include "Scene.hpp"
 
 
-adamTexture::adamTexture()
+AdamTexture::AdamTexture()
 {
   texture = nullptr;
   tWidth = 0;
   tHeight = 0;
 }
 
-adamTexture::adamTexture(const std::string path, SDL_Renderer* renderer)
+AdamTexture::AdamTexture(const std::string path, SDL_Renderer* renderer)
 {
   loadFromFile(path, renderer);
 }
 
-adamTexture::~adamTexture()
+AdamTexture::~AdamTexture()
 {
   free();
 }
 
-void adamTexture::free()
+void AdamTexture::free()
 {
   if(texture == nullptr) return;
 
@@ -27,9 +28,10 @@ void adamTexture::free()
   tHeight = 0;
 }
 
-bool adamTexture::loadFromFile(const std::string path, SDL_Renderer* renderer)
+bool AdamTexture::loadFromFile(const std::string path, SDL_Renderer* renderer)
 {
   free();
+
 
   texture = IMG_LoadTexture(renderer, path.c_str());
   if(texture == nullptr)
@@ -48,7 +50,7 @@ bool adamTexture::loadFromFile(const std::string path, SDL_Renderer* renderer)
 
 }
 
-/*bool adamTexture::loadFromText(char* text, SDL_Color textColor, SDL_Renderer* renderer, TTF_Font* font)
+/*bool AdamTexture::loadFromText(char* text, SDL_Color textColor, SDL_Renderer* renderer, TTF_Font* font)
 {
     free();
     
@@ -76,7 +78,7 @@ bool adamTexture::loadFromFile(const std::string path, SDL_Renderer* renderer)
     return true;
 } */
 
-void adamTexture::render(int x, int y, SDL_Renderer* renderer, double stretchFactor, SDL_Rect* clip, double angle, SDL_Point center, SDL_Color colorMod)
+void AdamTexture::render(int x, int y, SDL_Renderer* renderer, double stretchFactor, SDL_Rect* clip, double angle, SDL_Point center, SDL_Color colorMod)
 {
     
 
@@ -108,17 +110,17 @@ void adamTexture::render(int x, int y, SDL_Renderer* renderer, double stretchFac
   SDL_RenderCopyEx(renderer, texture, clip, &renderSpace, angle, &center, SDL_FLIP_NONE);
 }
 
-void adamTexture::setBlendMode(SDL_BlendMode blendMode)
+void AdamTexture::setBlendMode(SDL_BlendMode blendMode)
 {
   SDL_SetTextureBlendMode(texture, blendMode);
 }
 
-void adamTexture::setAlphaLevel(Uint8 alpha)
+void AdamTexture::setAlphaLevel(Uint8 alpha)
 {
   SDL_SetTextureAlphaMod(texture, alpha);
 }
 
-void adamTexture::replaceTexture(adamTexture* newTexture)
+void AdamTexture::replaceTexture(AdamTexture* newTexture)
 {
   texture = newTexture->texture;
   tWidth = newTexture->tWidth;
@@ -131,9 +133,12 @@ GameWindow::GameWindow()
 {
   window = nullptr;
   renderer = nullptr;
-  screenW = 640;
-  screenH = 360;
+  screenW = 320;
+  screenH = 180;
+  globalRenderScale = 1;
   initAll();
+
+  lol = new Scene;
 
   //font = NULL;
   //initAll(800, 600, &window, &renderer, &font); 
@@ -171,7 +176,22 @@ void GameWindow::resizeWindow(int newW, int newH)
 {
   screenW = newW;
   screenH = newH;
+  globalRenderScale = newW/320;
   SDL_SetWindowSize(window, screenW, screenH);
+}
+
+void GameWindow::renderGame()
+{
+  SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+  SDL_RenderClear(renderer);
+  lol->render();
+  SDL_RenderPresent(renderer);
+  return;
+}
+
+void GameWindow::performGameLogic()
+{
+  lol->performLogic();
 }
 
 //Initiates SDL, SDL_image, and SDL_TTF with a window
@@ -186,7 +206,7 @@ SDL_Window* GameWindow::ainitWindow()
   }
   
 
-  //linear texture filtering
+  //nearest texture filtering
 	if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0"))
 	{
 		printf("Linear texture filtering not enabled!\n");
@@ -232,7 +252,7 @@ SDL_Renderer* GameWindow::ainitRenderer(bool vsync)
   }
 
   SDL_SetRenderDrawColor(tempRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-  //SDL_RenderSetLogicalSize(tempRenderer, 640, 360);
+  SDL_RenderSetLogicalSize(tempRenderer, 320, 180);
   return tempRenderer;
 }
 
