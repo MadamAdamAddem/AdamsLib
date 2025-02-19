@@ -2,7 +2,7 @@
 #include "Inputs.hpp"
 #include "Scene.hpp"
 
-const float FPS = 2;
+const float FPS = 60;
 const int GOALFRAMETIME = (1/FPS)*1000;
 
 GameWindow gameWindow;

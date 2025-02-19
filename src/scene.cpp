@@ -23,12 +23,32 @@ void Scene::performLogic()
 
 // ------------------------------------------------------------
 
+void moveTexture()
+{
+  for(auto input : recentInputs)
+  {
+    if(input.type == SDL_KEYDOWN)
+    {
+      if(input.key.keysym.sym == SDLK_o)
+      {
+        gameWindow.resizeWindow(640, 360);
+      }
+    }
+  }
+
+  gameWindow.lol->testNode->x += 5;
+}
+
 BasicNode::BasicNode()
 {
   texture = new AdamTexture;
   texture->loadFromFile("testure.png", gameWindow.renderer);
+  w = texture->getWidth();
+  h = texture->getHeight();
 
-  testComponent = new TestComponent;
+  addComponent(moveTexture);
+
+  x = 0; y = 0;
 }
 
 BasicNode::~BasicNode()
@@ -39,36 +59,26 @@ BasicNode::~BasicNode()
 
 void BasicNode::render()
 {
-  if(texture!=nullptr) texture->render(0, 0, gameWindow.renderer);
+  if(texture!=nullptr) texture->render(x, y, gameWindow.renderer);
 }
 
 void BasicNode::performLogic()
 {
-  testComponent->performLogic(this);
+  for(auto component : componentVector)
+  {
+    component.performLogic();
+  }
+
+}
+
+void BasicNode::addComponent(void (*newFunc)())
+{
+  componentVector.push_back(Component<BasicNode*>(this, newFunc));
 }
 
 // ------------------------------------------------------------
 
-
 // ------------------------------------------------------------
 
-void funcptrtest()
-{
-  std::cout << "a function pointer has been used" << std::endl;
-}
 
-TestComponent::TestComponent()
-{
-  funcptr = funcptrtest;
-}
-
-TestComponent::~TestComponent()
-{
-
-}
-
-void TestComponent::performLogic(BasicNode* parent)
-{
-  funcptr();
-}
 

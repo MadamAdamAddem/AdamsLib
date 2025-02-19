@@ -5,49 +5,19 @@ class SceneNode;
 class BasicNode;
 
 
-class Component
+template<typename ParentNodePtr> class Component
 {
 public:
-  virtual void performLogic(BasicNode* parent) = 0;
+  Component(ParentNodePtr _parent, void (*newFunc)() = nullptr) {parent = _parent; funcptr = newFunc;}
+  ~Component() {};
+
+  void performLogic() {if(funcptr != nullptr) funcptr();}
+
+  ParentNodePtr parent;
+
+  void (*funcptr)() = nullptr;
 };
 
-class TestComponent : public Component
-{
-public:
-  TestComponent();
-  ~TestComponent();
-
-  int health;
-
-  void performLogic(BasicNode* parent);
-
-  void (*funcptr)();
-};
-
-/* Example Components 
-
-class HealthComponent : public Component
-{
-public:
-  HealthComponent();
-  ~HealthComponent();
-
-  int health;
-
-  void performLogic(BasicNode* parent);
-};
-
-class InputComponent : public Component
-{
-public:
-  InputComponent();
-  ~InputComponent();
-
-  
-  void performLogic(BasicNode* parent);
-};
-
- ------------------ */
 
 
 class SceneNode
@@ -66,11 +36,13 @@ public:
   BasicNode();
   ~BasicNode();
 
+  void addComponent(void (*newFunc)());
+
   void render();
 
   void performLogic();
 
-  Component* testComponent;
+  std::vector<Component<BasicNode*>> componentVector;
 
 };
 

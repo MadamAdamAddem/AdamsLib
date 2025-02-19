@@ -22,15 +22,6 @@ bool handleEvents(SDL_Event* e)
     if(e->type == SDL_MOUSEBUTTONDOWN)
     {
     }
-
-
-    if(e->type == SDL_KEYDOWN)
-    {
-      if(e->key.keysym.sym == SDLK_o)
-      {
-        gameWindow.resizeWindow(640, 360);
-      }
-    }
     
   }
 
