@@ -11,6 +11,21 @@ public:
   virtual void performLogic(BasicNode* parent) = 0;
 };
 
+class TestComponent : public Component
+{
+public:
+  TestComponent();
+  ~TestComponent();
+
+  int health;
+
+  void performLogic(BasicNode* parent);
+
+  void (*funcptr)();
+};
+
+/* Example Components 
+
 class HealthComponent : public Component
 {
 public:
@@ -32,7 +47,7 @@ public:
   void performLogic(BasicNode* parent);
 };
 
-
+ ------------------ */
 
 
 class SceneNode
@@ -56,6 +71,7 @@ public:
   void performLogic();
 
   Component* testComponent;
+
 };
 
 class Scene

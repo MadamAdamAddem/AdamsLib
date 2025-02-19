@@ -1,5 +1,5 @@
 To Do:
-  Figure out how to make user write custom logic for components
+  Use function pointers for component logic
 
 
 Polish:

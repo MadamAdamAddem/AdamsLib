@@ -28,7 +28,7 @@ BasicNode::BasicNode()
   texture = new AdamTexture;
   texture->loadFromFile("testure.png", gameWindow.renderer);
 
-  testComponent = new InputComponent;
+  testComponent = new TestComponent;
 }
 
 BasicNode::~BasicNode()
@@ -49,36 +49,26 @@ void BasicNode::performLogic()
 
 // ------------------------------------------------------------
 
-InputComponent::InputComponent()
-{
-  
-}
-
-//implement
-InputComponent::~InputComponent()
-{
-
-}
-
-void InputComponent::performLogic(BasicNode* parent)
-{
-  
-}
 
 // ------------------------------------------------------------
 
-HealthComponent::HealthComponent()
+void funcptrtest()
+{
+  std::cout << "a function pointer has been used" << std::endl;
+}
+
+TestComponent::TestComponent()
+{
+  funcptr = funcptrtest;
+}
+
+TestComponent::~TestComponent()
 {
 
 }
 
-HealthComponent::~HealthComponent()
+void TestComponent::performLogic(BasicNode* parent)
 {
-
-}
-
-void HealthComponent::performLogic(BasicNode* parent)
-{
-
+  funcptr();
 }
 
