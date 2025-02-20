@@ -3,9 +3,10 @@
 
 Scene::Scene()
 {
-  testNode = new BasicNode;
+  sceneNodes.push_back(new BasicNode);
 }
 
+//implement
 Scene::~Scene()
 {
 
@@ -13,41 +14,29 @@ Scene::~Scene()
 
 void Scene::render()
 {
-  testNode->render();
+  for(auto node : sceneNodes)
+  {
+    node->render();
+  }
 }
 
 void Scene::performLogic()
 {
-  testNode->performLogic();
+  for(auto node : sceneNodes)
+  {
+    node->performLogic();
+  }
 }
 
 // ------------------------------------------------------------
-
-void moveTexture()
-{
-  for(auto input : recentInputs)
-  {
-    if(input.type == SDL_KEYDOWN)
-    {
-      if(input.key.keysym.sym == SDLK_o)
-      {
-        gameWindow.resizeWindow(640, 360);
-      }
-    }
-  }
-
-  gameWindow.lol->testNode->x += 5;
-}
 
 BasicNode::BasicNode()
 {
   texture = new AdamTexture;
   texture->loadFromFile("testure.png", gameWindow.renderer);
   w = texture->getWidth();
-  h = texture->getHeight();
-
-  addComponent(moveTexture);
-
+  h = texture->getHeight();  
+  
   x = 0; y = 0;
 }
 
@@ -55,7 +44,6 @@ BasicNode::~BasicNode()
 {
   texture->free();
 }
-
 
 void BasicNode::render()
 {

@@ -1,9 +1,6 @@
 #pragma once
 #include "Rendering.hpp"
 
-class SceneNode;
-class BasicNode;
-
 
 template<typename ParentNodePtr> class Component
 {
@@ -56,7 +53,7 @@ public:
 
   void render();
 
-  SceneNode* testNode;
+  std::vector<SceneNode*> sceneNodes;
 };
 
 extern std::vector<SDL_Event> recentInputs;
