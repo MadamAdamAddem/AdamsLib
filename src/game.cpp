@@ -2,7 +2,7 @@
 
 Game::Game()
 {
-
+  
 }
 
 Game::Game(Scene* newScene)
@@ -28,4 +28,12 @@ void Game::loadScene(Scene* newScene)
     delete currentScene;
 
   currentScene = newScene;
+}
+
+void Game::renderScene()
+{
+  if(currentScene != nullptr)
+  {
+    currentScene->render();
+  }
 }

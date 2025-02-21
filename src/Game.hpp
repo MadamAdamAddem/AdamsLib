@@ -11,6 +11,7 @@ public:
 
   void performGameLogic();
   void loadScene(Scene* newScene);
+  void renderScene();
 
   Scene* currentScene = nullptr;
 };

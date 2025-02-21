@@ -3,13 +3,16 @@
 
 Scene::Scene()
 {
-  sceneNodes.push_back(new BasicNode);
+
 }
 
 //implement
 Scene::~Scene()
 {
-
+  for(auto node : sceneNodes)
+  {
+    
+  }
 }
 
 void Scene::render()
@@ -31,23 +34,26 @@ void Scene::performLogic()
 // ------------------------------------------------------------
 
 BasicNode::BasicNode()
-{
-  texture = new AdamTexture;
-  texture->loadFromFile("testure.png", gameWindow.renderer);
-  w = texture->getWidth();
-  h = texture->getHeight();  
-  
+{  
+  texture = new AdamTexture();
   x = 0; y = 0;
 }
 
 BasicNode::~BasicNode()
 {
   texture->free();
+
+  componentVector.clear();
 }
 
 void BasicNode::render()
 {
   if(texture!=nullptr) texture->render(x, y, gameWindow.renderer);
+}
+
+void BasicNode::setTexture(std::string path)
+{
+  texture->loadFromFile(path, gameWindow.renderer);
 }
 
 void BasicNode::performLogic()

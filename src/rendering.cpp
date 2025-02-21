@@ -184,9 +184,10 @@ void GameWindow::renderGame()
 {
   SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
   SDL_RenderClear(renderer);
+
+  game.renderScene();
   SDL_RenderPresent(renderer);
-  if(game.currentScene != nullptr)
-    game.currentScene->render();
+  
   return;
 }
 

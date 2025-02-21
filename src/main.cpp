@@ -7,8 +7,11 @@ GameWindow gameWindow;
 Game game;
 
 
+
 int main()
 {
+
+  gameWindow.resizeWindow(640, 360);
 
   while(handleEvents()) 
   {  

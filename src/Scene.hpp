@@ -37,6 +37,7 @@ public:
   void addComponent(void (*newFunc)());
 
   void render();
+  void setTexture(std::string path);
 
   void performLogic();
 
