@@ -1,11 +1,12 @@
 #include "Rendering.hpp"
 #include "Inputs.hpp"
-#include "Scene.hpp"
+#include "Game.hpp"
 
 const float FPS = 60;
 const int GOALFRAMETIME = (1/FPS)*1000;
 
 GameWindow gameWindow;
+Game game;
 
 
 int main()
@@ -19,8 +20,7 @@ int main()
 
     frameTime = SDL_GetTicks();
   
-
-    gameWindow.performGameLogic();
+    game.performGameLogic();
     gameWindow.renderGame();
     
 

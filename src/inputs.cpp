@@ -13,16 +13,6 @@ bool handleEvents(SDL_Event* e)
       return false;
 
     recentInputs.push_back(*e);
-
-    if(e->type == SDL_MOUSEBUTTONUP)
-    {
-    }
-
-
-    if(e->type == SDL_MOUSEBUTTONDOWN)
-    {
-    }
-    
   }
 
 

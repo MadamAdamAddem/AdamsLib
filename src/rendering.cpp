@@ -1,6 +1,8 @@
 #include "Rendering.hpp"
 #include "Scene.hpp"
+#include "Game.hpp"
 
+extern Game game;
 
 AdamTexture::AdamTexture()
 {
@@ -138,8 +140,6 @@ GameWindow::GameWindow()
   globalRenderScale = 1;
   initAll();
 
-  lol = new Scene;
-
   //font = NULL;
   //initAll(800, 600, &window, &renderer, &font); 
 }
@@ -184,14 +184,10 @@ void GameWindow::renderGame()
 {
   SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
   SDL_RenderClear(renderer);
-  lol->render();
   SDL_RenderPresent(renderer);
+  if(game.currentScene != nullptr)
+    game.currentScene->render();
   return;
-}
-
-void GameWindow::performGameLogic()
-{
-  lol->performLogic();
 }
 
 //Initiates SDL, SDL_image, and SDL_TTF with a window
