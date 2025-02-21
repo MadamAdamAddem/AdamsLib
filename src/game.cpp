@@ -25,9 +25,7 @@ void Game::performGameLogic()
 void Game::loadScene(Scene* newScene)
 {
   if(currentScene != nullptr)
-  {
     delete currentScene;
-  }
 
   currentScene = newScene;
 }

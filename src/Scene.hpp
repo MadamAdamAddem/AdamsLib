@@ -29,6 +29,7 @@ public:
 
 class BasicNode : public SceneNode
 {
+template <typename ParentNodePtr> friend class Component;
 public:
   BasicNode();
   ~BasicNode();
@@ -39,6 +40,7 @@ public:
 
   void performLogic();
 
+protected:
   std::vector<Component<BasicNode*>> componentVector;
 
 };
