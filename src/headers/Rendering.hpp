@@ -8,6 +8,7 @@
 #include <SDL2/SDL_image.h>
 
 class Scene;
+class Game;
 
 
 class GameWindow
@@ -75,4 +76,5 @@ void aSDL_Close();
 //void initAll(int SCREENW, int SCREENH, SDL_Window** window, SDL_Renderer** renderer, TTF_Font** font);
 
 
-extern GameWindow gameWindow;
+extern GameWindow* gameWindow;
+extern Game* game;

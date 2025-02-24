@@ -1,4 +1,4 @@
-#include "Scene.hpp"
+#include "headers/Scene.hpp"
 
 
 Scene::Scene()
@@ -33,27 +33,54 @@ void Scene::performLogic()
 
 // ------------------------------------------------------------
 
-BasicNode::BasicNode()
-{  
-  texture = new AdamTexture();
-  x = 0; y = 0;
+BasicNode::BasicNode() : BasicNode(nullptr)
+{
+
+}
+
+BasicNode::BasicNode(void (*renderptr)(BasicNode* parent))
+{
+  var["x"] = 0;
+  var["y"] = 0;
+  var["w"] = 0;
+  var["h"] = 0;
+  textureMap["main"] = new AdamTexture();
+  
+  renderfuncptr = renderptr;
 }
 
 BasicNode::~BasicNode()
 {
-  texture->free();
-
+  for(auto [key, component] : componentMap)
+    delete component;
   componentMap.clear();
+
+  for(auto [key, texture] : textureMap)
+    delete texture;
+  textureMap.clear();
+
+  var.clear();
 }
 
 void BasicNode::render()
 {
-  if(texture!=nullptr) texture->render(x, y, gameWindow.renderer);
+  if(renderfuncptr != nullptr)
+  {
+    renderfuncptr(this);
+    return;
+  } 
+
+  if(textureMap["main"]!=nullptr) textureMap["main"]->render(var["x"], var["y"], gameWindow->renderer);
 }
 
 void BasicNode::setTexture(std::string path)
 {
-  texture->loadFromFile(path, gameWindow.renderer);
+  textureMap["main"]->loadFromFile(path, gameWindow->renderer);
+}
+
+void BasicNode::setTexture(AdamTexture* newTexture)
+{
+  textureMap["main"]->replaceTexture(newTexture);
 }
 
 void BasicNode::performLogic()

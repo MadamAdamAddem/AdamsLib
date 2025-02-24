@@ -4,7 +4,7 @@ else
 	UNAME := $(shell uname)
 endif
 
-files := testgame.cpp game.cpp scene.cpp inputs.cpp rendering.cpp main.cpp 
+files := adlibinit.cpp examplegame.cpp game.cpp scene.cpp inputs.cpp rendering.cpp main.cpp 
 obj_dir := obj
 compiled := $(files:%.cpp=$(obj_dir)/%.o)
 CXX := g++

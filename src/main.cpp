@@ -1,26 +1,23 @@
-#include "Rendering.hpp"
-#include "Inputs.hpp"
-#include "Game.hpp"
+#include "headers/AdamLib.hpp"
 
 
-GameWindow gameWindow;
-Game game;
 
 
 
 int main()
 {
+  AdamInit();
 
-  gameWindow.resizeWindow(640, 360);
-  game.loadScene(testScene1());
+  game->loadScene(exampleScene());
 
   while(handleEvents()) 
   {  
-    game.performGameLogic();
-    gameWindow.renderGame();
+    game->performGameLogic();
+    gameWindow->renderGame();
     reduceFrames(60);
   }
 
+  AdamClose();
   return 0;
 
 }

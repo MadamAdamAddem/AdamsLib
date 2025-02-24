@@ -1,8 +1,10 @@
-#include "Rendering.hpp"
-#include "Scene.hpp"
-#include "Game.hpp"
+#include "headers/Rendering.hpp"
+#include "headers/Scene.hpp"
+#include "headers/Game.hpp"
 
-extern Game game;
+
+GameWindow* gameWindow;
+Game* game;
 
 AdamTexture::AdamTexture()
 {
@@ -82,7 +84,8 @@ bool AdamTexture::loadFromFile(const std::string path, SDL_Renderer* renderer)
 
 void AdamTexture::render(int x, int y, SDL_Renderer* renderer, double stretchFactor, SDL_Rect* clip, double angle, SDL_Point center, SDL_Color colorMod)
 {
-    
+  if(texture == nullptr || renderer == nullptr)
+    return;
 
   //area to render
   SDL_Rect renderSpace;
@@ -185,7 +188,7 @@ void GameWindow::renderGame()
   SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
   SDL_RenderClear(renderer);
 
-  game.renderScene();
+  game->renderScene();
   SDL_RenderPresent(renderer);
   
   return;
@@ -284,8 +287,8 @@ SDL_Renderer* GameWindow::ainitRenderer(bool vsync)
 
 void aSDL_Close()
 {
-  SDL_DestroyWindow(gameWindow.getWindow());
-  SDL_DestroyRenderer(gameWindow.getRenderer());
+  SDL_DestroyWindow(gameWindow->getWindow());
+  SDL_DestroyRenderer(gameWindow->getRenderer());
 
   SDL_Quit();
   IMG_Quit();
