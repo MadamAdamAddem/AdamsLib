@@ -43,7 +43,7 @@ BasicNode::~BasicNode()
 {
   texture->free();
 
-  componentVector.clear();
+  componentMap.clear();
 }
 
 void BasicNode::render()
@@ -58,16 +58,16 @@ void BasicNode::setTexture(std::string path)
 
 void BasicNode::performLogic()
 {
-  for(auto component : componentVector)
+  for(auto [key, component] : componentMap)
   {
-    component.performLogic();
+    component->performLogic();
   }
 
 }
 
-void BasicNode::addComponent(void (*newFunc)())
+void BasicNode::addComponent(std::string key, void (*newFunc)(Component<BasicNode*>* host))
 {
-  componentVector.push_back(Component<BasicNode*>(this, newFunc));
+  componentMap[key] = new Component<BasicNode*>(this, newFunc);
 }
 
 // ------------------------------------------------------------

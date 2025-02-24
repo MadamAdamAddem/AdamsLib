@@ -12,6 +12,7 @@ int main()
 {
 
   gameWindow.resizeWindow(640, 360);
+  game.loadScene(testScene1());
 
   while(handleEvents()) 
   {  

@@ -1,7 +1,7 @@
 To Do:
   Find a way to implement tiles
   Add animation support
-
+  Implement controller inputs
 
 Polish:
   Make game run exactly once every 16ms

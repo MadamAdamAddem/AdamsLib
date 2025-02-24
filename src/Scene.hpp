@@ -5,17 +5,17 @@
 template<typename ParentNodePtr> class Component
 {
 public:
-  Component(ParentNodePtr _parent, void (*newFunc)() = nullptr) {parent = _parent; funcptr = newFunc;}
+  Component(ParentNodePtr _parent, void (*newFunc)(Component* host) = nullptr) {parent = _parent; funcptr = newFunc;}
   ~Component() {};
 
-  void performLogic() {if(funcptr != nullptr) funcptr();}
+  void performLogic() {if(funcptr != nullptr) funcptr(this);}
 
   ParentNodePtr parent;
 
-  void (*funcptr)() = nullptr;
+  void (*funcptr)(Component* host) = nullptr;
 };
 
-
+Scene* testScene1();
 
 class SceneNode
 {
@@ -30,11 +30,12 @@ public:
 class BasicNode : public SceneNode
 {
 template <typename ParentNodePtr> friend class Component;
+
 public:
   BasicNode();
   ~BasicNode();
 
-  void addComponent(void (*newFunc)());
+  void addComponent(std::string key, void (*newFunc)(Component<BasicNode*>* host));
 
   void render();
   void setTexture(std::string path);
@@ -42,7 +43,8 @@ public:
   void performLogic();
 
 protected:
-  std::vector<Component<BasicNode*>> componentVector;
+  std::map<std::string, Component<BasicNode*>*> componentMap;
+  std::map<std::string, int> variables;
 
 };
 
@@ -59,5 +61,7 @@ public:
   std::vector<SceneNode*> sceneNodes;
 };
 
-extern std::vector<SDL_Event> recentInputs;
+extern std::vector<SDL_Event> keyboardInputs;
+extern std::vector<SDL_Event> mouseInputs;
+
 

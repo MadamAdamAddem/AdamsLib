@@ -6,8 +6,8 @@
 /*
   Call as condition for main while loop.
   Returns false when user clicks to exit program.
-  Takes user input and adds to recentInputs vector.
-  Clears recentInputs vector every frame.
+  Takes user input and adds to keyboardInputs vector.
+  Clears keyboardInputs vector every frame.
   Works in combination with reduceFrames() to handle FPS control.
   Call before all main logic/rendering functions.
 */
