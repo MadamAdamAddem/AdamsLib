@@ -25,6 +25,8 @@ void doLogic(Component<BasicNode*>* host)
       case SDLK_d:
         keystates[3] = !keyUp;
         break;
+      case SDLK_o:
+        break;
 
       default:
         break;

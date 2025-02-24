@@ -59,10 +59,12 @@ public:
   ~Scene();
 
   void performLogic();
-
   void render();
 
   std::vector<SceneNode*> sceneNodes;
+
+  int width = 640;
+  int height = 360;
 };
 
 extern std::vector<SDL_Event> keyboardInputs;

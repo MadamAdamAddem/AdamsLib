@@ -22,6 +22,7 @@ public:
   void initAll();
   void resizeWindow(int newW, int newH);
   void renderGame();
+  void setViewport();
 
   SDL_Renderer* ainitRenderer(bool vsync = false);
   SDL_Window* ainitWindow();
@@ -31,9 +32,11 @@ public:
 
   SDL_Window* window = nullptr;
   SDL_Renderer* renderer = nullptr;
+  SDL_Rect viewport;
 
   int screenW, screenH;
   int globalRenderScale;
+  bool useViewport = false;
   //TTF_Font* font;
 };
 

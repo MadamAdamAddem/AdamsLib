@@ -138,13 +138,10 @@ GameWindow::GameWindow()
 {
   window = nullptr;
   renderer = nullptr;
-  screenW = 320;
-  screenH = 180;
+  screenW = 640;
+  screenH = 360;
   globalRenderScale = 1;
   initAll();
-
-  //font = NULL;
-  //initAll(800, 600, &window, &renderer, &font); 
 }
 
 GameWindow::GameWindow(int SCREENW, int SCREENH)
@@ -252,7 +249,7 @@ SDL_Renderer* GameWindow::ainitRenderer(bool vsync)
   }
 
   SDL_SetRenderDrawColor(tempRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-  SDL_RenderSetLogicalSize(tempRenderer, 320, 180);
+  SDL_RenderSetLogicalSize(tempRenderer, 640, 360);
   return tempRenderer;
 }
 
