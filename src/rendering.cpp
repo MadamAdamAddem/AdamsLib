@@ -134,14 +134,9 @@ void AdamTexture::replaceTexture(AdamTexture* newTexture)
 
 // ------------------------------------------------------------
 
-GameWindow::GameWindow()
+GameWindow::GameWindow() : GameWindow(640, 360)
 {
-  window = nullptr;
-  renderer = nullptr;
-  screenW = 640;
-  screenH = 360;
-  globalRenderScale = 1;
-  initAll();
+  
 }
 
 GameWindow::GameWindow(int SCREENW, int SCREENH)
@@ -151,6 +146,10 @@ GameWindow::GameWindow(int SCREENW, int SCREENH)
   screenW = SCREENW;
   screenH = SCREENH;
   globalRenderScale = screenW / 640;
+  viewport.x = 0;
+  viewport.y = 0;
+  viewport.w = 640;
+  viewport.h = 360;
   initAll();
 }
 
@@ -184,11 +183,18 @@ void GameWindow::renderGame()
 {
   SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
   SDL_RenderClear(renderer);
+  SDL_RenderSetViewport(renderer, &viewport);
 
   game->renderScene();
   SDL_RenderPresent(renderer);
   
   return;
+}
+
+void GameWindow::setViewport(int x, int y)
+{
+  viewport.x += x;
+  viewport.y += y;
 }
 
 //Initiates SDL, SDL_image, and SDL_TTF with a window

@@ -22,7 +22,7 @@ public:
   void initAll();
   void resizeWindow(int newW, int newH);
   void renderGame();
-  void setViewport();
+  void setViewport(int x, int y);
 
   SDL_Renderer* ainitRenderer(bool vsync = false);
   SDL_Window* ainitWindow();

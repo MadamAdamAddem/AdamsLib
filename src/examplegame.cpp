@@ -45,6 +45,17 @@ void doLogic(Component<BasicNode*>* host)
   if(keystates[3])
     parentNode->var["x"] += 1;
 
+  /*if(keystates[0])
+    gameWindow->setViewport(0, -1);
+
+  if(keystates[1])
+    gameWindow->setViewport(-1, 0);
+
+  if(keystates[2])
+    gameWindow->setViewport(0, 1);
+
+  if(keystates[3])
+    gameWindow->setViewport(1, 0); */
 
 }
 
