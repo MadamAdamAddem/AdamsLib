@@ -23,9 +23,12 @@ public:
   void resizeWindow(int newW, int newH);
   void renderGame();
   void setViewport(int x, int y);
+  void setCamera(int x, int y, int w, int h);
+
 
   SDL_Renderer* ainitRenderer(bool vsync = false);
   SDL_Window* ainitWindow();
+
   SDL_Renderer* getRenderer() {return renderer;}
   SDL_Window* getWindow() {return window;}
 
@@ -35,9 +38,12 @@ public:
   SDL_Rect viewport;
 
   int screenW, screenH;
-  int globalRenderScale;
+
+  SDL_Rect camera;
+
+  float globalRenderScale = 1.0f;
   bool useViewport = false;
-  //TTF_Font* font;
+  
 };
 
 class AdamTexture
@@ -54,7 +60,7 @@ public:
 
   //bool loadFromText(char* text, SDL_Color textColor, SDL_Renderer* renderer, TTF_Font* font);
 
-  void render(int x, int y, SDL_Renderer* renderer, double stretchFactor = 1, SDL_Rect* clip = nullptr, double angle = 0.0, SDL_Point center = {0,0}, SDL_Color colorMod = {0,0,0,0});
+  void render(int x, int y, SDL_Renderer* renderer, SDL_Rect* clip = nullptr, SDL_Rect* rSpace = nullptr, double angle = 0.0, SDL_Point center = {0,0}, SDL_Color colorMod = {0,0,0,0});
 
   void setBlendMode(SDL_BlendMode blendMode);
 
@@ -74,10 +80,9 @@ private:
 
 };
 
-void aSDL_Close();
-//void initAll(int SCREENW, int SCREENH, SDL_Window** window, SDL_Renderer** renderer);
-//void initAll(int SCREENW, int SCREENH, SDL_Window** window, SDL_Renderer** renderer, TTF_Font** font);
 
+
+void aSDL_Close();
 
 extern GameWindow* gameWindow;
 extern Game* game;

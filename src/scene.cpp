@@ -1,9 +1,16 @@
 #include "headers/Scene.hpp"
 
 
-Scene::Scene()
+Scene::Scene() : Scene(0, 0, 1280, 720)
 {
 
+}
+
+Scene::Scene(int x, int y, int w, int h)
+{
+  width = w; height = h;
+
+  camera = new Camera(x, y, w, h);
 }
 
 //implement
@@ -29,6 +36,11 @@ void Scene::performLogic()
   {
     node->performLogic();
   }
+}
+
+void Scene::setCamera(int x, int y, int w, int h)
+{
+  camera->cameraRect = {x, y, w, h};
 }
 
 // ------------------------------------------------------------
@@ -70,7 +82,7 @@ void BasicNode::render()
     return;
   } 
 
-  if(textureMap["main"]!=nullptr) textureMap["main"]->render(var["x"], var["y"], gameWindow->renderer);
+  if(textureMap["main"]!=nullptr) textureMap["main"]->render(var["x"], var["y"], gameWindow->renderer, &gameWindow->camera);
 }
 
 void BasicNode::setTexture(std::string path)
@@ -98,6 +110,21 @@ void BasicNode::addComponent(std::string key, void (*newFunc)(Component<BasicNod
 }
 
 // ------------------------------------------------------------
+
+Camera::Camera() : Camera(0, 0, gameWindow->screenW, gameWindow->screenH)
+{
+
+}
+
+Camera::Camera(int x, int y, int w, int h)
+{
+  cameraRect = {x, y, w, h};
+}
+
+Camera::~Camera()
+{
+
+}
 
 // ------------------------------------------------------------
 

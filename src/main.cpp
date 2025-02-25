@@ -19,5 +19,4 @@ int main()
 
   AdamClose();
   return 0;
-
 }

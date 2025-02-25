@@ -82,17 +82,23 @@ bool AdamTexture::loadFromFile(const std::string path, SDL_Renderer* renderer)
     return true;
 } */
 
-void AdamTexture::render(int x, int y, SDL_Renderer* renderer, double stretchFactor, SDL_Rect* clip, double angle, SDL_Point center, SDL_Color colorMod)
+void AdamTexture::render(int x, int y, SDL_Renderer* renderer, SDL_Rect* clip, SDL_Rect* rSpace, double angle, SDL_Point center, SDL_Color colorMod)
 {
   if(texture == nullptr || renderer == nullptr)
     return;
 
   //area to render
   SDL_Rect renderSpace;
-  renderSpace.x = x;
-  renderSpace.y = y;
-  renderSpace.w = tWidth * stretchFactor;
-  renderSpace.h = tHeight * stretchFactor;
+  if(rSpace == nullptr)
+  {
+    renderSpace.x = x;
+    renderSpace.y = y;
+    renderSpace.w = tWidth;
+    renderSpace.h = tHeight;
+    rSpace = &renderSpace;
+  }
+  
+
   
 
 
@@ -104,15 +110,15 @@ void AdamTexture::render(int x, int y, SDL_Renderer* renderer, double stretchFac
 
   if(clip != nullptr)
   {
-    renderSpace.w = clip->w*stretchFactor;
-    renderSpace.h = clip->h*stretchFactor;
+    renderSpace.w = clip->w;
+    renderSpace.h = clip->h;
   }
 
   if(colorMod.a != 0)
     SDL_SetTextureColorMod(texture, colorMod.r, colorMod.g, colorMod.b);
   
 
-  SDL_RenderCopyEx(renderer, texture, clip, &renderSpace, angle, &center, SDL_FLIP_NONE);
+  SDL_RenderCopyEx(renderer, texture, clip, rSpace, angle, &center, SDL_FLIP_NONE);
 }
 
 void AdamTexture::setBlendMode(SDL_BlendMode blendMode)
@@ -145,11 +151,10 @@ GameWindow::GameWindow(int SCREENW, int SCREENH)
   renderer = nullptr;
   screenW = SCREENW;
   screenH = SCREENH;
-  globalRenderScale = screenW / 640;
-  viewport.x = 0;
-  viewport.y = 0;
-  viewport.w = 640;
-  viewport.h = 360;
+  globalRenderScale = ((float)screenW / 640);
+  viewport = {0,0,SCREENW,SCREENH};
+  camera = {0,0,SCREENW,SCREENH};
+
   initAll();
 }
 
@@ -181,9 +186,11 @@ void GameWindow::resizeWindow(int newW, int newH)
 
 void GameWindow::renderGame()
 {
+
   SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
   SDL_RenderClear(renderer);
   SDL_RenderSetViewport(renderer, &viewport);
+  SDL_RenderSetScale(renderer, globalRenderScale, globalRenderScale);
 
   game->renderScene();
   SDL_RenderPresent(renderer);
@@ -195,6 +202,14 @@ void GameWindow::setViewport(int x, int y)
 {
   viewport.x += x;
   viewport.y += y;
+}
+
+void GameWindow::setCamera(int x, int y, int w, int h)
+{
+  camera.x = x;
+  camera.y = y;
+  camera.w = w;
+  camera.h = h;
 }
 
 //Initiates SDL, SDL_image, and SDL_TTF with a window
@@ -255,7 +270,7 @@ SDL_Renderer* GameWindow::ainitRenderer(bool vsync)
   }
 
   SDL_SetRenderDrawColor(tempRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-  SDL_RenderSetLogicalSize(tempRenderer, 640, 360);
+  //SDL_RenderSetLogicalSize(tempRenderer, 640, 360);
   return tempRenderer;
 }
 

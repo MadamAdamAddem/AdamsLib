@@ -24,6 +24,7 @@ class SceneNode
 public:
   virtual void render() = 0;
   virtual void performLogic() = 0;
+
 };
 
 class BasicNode : public SceneNode
@@ -52,19 +53,35 @@ public:
 
 };
 
+class Camera
+{
+public:
+  Camera();
+  Camera(int x, int y, int w, int h);
+  ~Camera();
+
+
+
+  SDL_Rect cameraRect;
+};
+
+
 class Scene
 {
 public:
   Scene();
+  Scene(int x, int y, int w, int h);
   ~Scene();
 
   void performLogic();
   void render();
+  void setCamera(int x, int y, int w, int h);
 
   std::vector<SceneNode*> sceneNodes;
+  Camera* camera;
 
-  int width = 640;
-  int height = 360;
+  int width = 1280;
+  int height = 720;
 };
 
 extern std::vector<SDL_Event> keyboardInputs;
