@@ -12,6 +12,7 @@ std::vector<SDL_Event> controllerInputs;
 
 Uint32 frameTime = 0;
 SDL_Event e;
+bool takeTextInput = false;
 
 
 bool handleEvents()
@@ -20,6 +21,11 @@ bool handleEvents()
   keyboardInputs.clear();
   mouseInputs.clear();
 
+  if(takeTextInput)
+    SDL_StartTextInput();
+  else
+    SDL_StopTextInput();
+
   SDL_GetMouseState(&mouse.prevX, &mouse.prevY);
 
   while(SDL_PollEvent(&e) != 0)
@@ -27,6 +33,13 @@ bool handleEvents()
     if(e.type == SDL_QUIT)
       return false;
       
+
+    if(e.type == SDL_TEXTINPUT)
+    {
+      keyboardInputs.push_back(e);
+      break;
+    }
+
     if(e.type == SDL_KEYDOWN || e.type == SDL_KEYUP)
     {
       keyboardInputs.push_back(e);
@@ -49,6 +62,7 @@ bool handleEvents()
     }
       
   }
+
 
   SDL_GetMouseState(&mouse.x, &mouse.y);
 

@@ -5,6 +5,7 @@ void AdamInit()
 {
   gameWindow = new GameWindow(640, 360);
   game = new Game;
+  SDL_StopTextInput();
 }
 
 void AdamClose()

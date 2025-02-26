@@ -10,7 +10,7 @@ Scene::Scene(int x, int y, int w, int h)
 {
   width = w; height = h;
 
-  camera = new Camera(x, y, w, h);
+  camera = new Camera(x, y, gameWindow->screenW, gameWindow->screenH);
 }
 
 //implement
@@ -20,6 +20,8 @@ Scene::~Scene()
   {
     
   }
+
+  delete camera;
 }
 
 void Scene::render()
@@ -28,6 +30,9 @@ void Scene::render()
   {
     node->render();
   }
+
+  //SDL_Rect shitfuck = {100, 100, 50, 50};
+  //SDL_RenderDrawRect(gameWindow->renderer, &shitfuck);
 }
 
 void Scene::performLogic()
@@ -45,12 +50,7 @@ void Scene::setCamera(int x, int y, int w, int h)
 
 // ------------------------------------------------------------
 
-BasicNode::BasicNode() : BasicNode(nullptr)
-{
-
-}
-
-BasicNode::BasicNode(void (*renderptr)(BasicNode* parent))
+BasicNode::BasicNode(Scene* sceneParent, void (*renderptr)(BasicNode* parent))
 {
   var["x"] = 0;
   var["y"] = 0;
@@ -59,6 +59,7 @@ BasicNode::BasicNode(void (*renderptr)(BasicNode* parent))
   textureMap["main"] = new AdamTexture();
   
   renderfuncptr = renderptr;
+  parentScene = sceneParent;
 }
 
 BasicNode::~BasicNode()
@@ -82,7 +83,7 @@ void BasicNode::render()
     return;
   } 
 
-  if(textureMap["main"]!=nullptr) textureMap["main"]->render(var["x"], var["y"], gameWindow->renderer, &gameWindow->camera);
+  if(textureMap["main"]!=nullptr) textureMap["main"]->render(var["x"], var["y"], gameWindow->renderer);
 }
 
 void BasicNode::setTexture(std::string path)
@@ -103,6 +104,20 @@ void BasicNode::performLogic()
   }
 
 }
+
+void BasicNode::setPos(int x, int y)
+{
+  var["x"] = x;
+  var["y"] = y;
+}
+
+void BasicNode::setDim(int w, int h)
+{
+  var["w"] = w;
+  var["h"] = h;
+}
+
+
 
 void BasicNode::addComponent(std::string key, void (*newFunc)(Component<BasicNode*>* host))
 {

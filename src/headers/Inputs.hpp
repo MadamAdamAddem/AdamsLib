@@ -4,9 +4,11 @@
 
 struct Mouse
 {
+
   int x = 0, y = 0;
   int prevX = 0, prevY = 0;
   bool isPressed = false;
+
 }typedef Mouse;
 
 
@@ -30,3 +32,4 @@ bool handleEvents();
 Uint32 reduceFrames(Uint32 desiredFPS);
 
 extern Mouse mouse;
+extern bool takeTextInput;

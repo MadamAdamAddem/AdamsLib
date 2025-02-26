@@ -3,6 +3,8 @@
 
 Scene* exampleScene();
 
+class Scene;
+
 template<typename ParentNodePtr> class Component
 {
 public:
@@ -25,13 +27,13 @@ public:
   virtual void render() = 0;
   virtual void performLogic() = 0;
 
+  Scene* parentScene = nullptr;
 };
 
 class BasicNode : public SceneNode
 {
 public:
-  BasicNode();
-  BasicNode(void (*renderptr)(BasicNode* parent));
+  BasicNode(Scene* sceneParent, void(*renderptr)(BasicNode* parent) = nullptr);
   ~BasicNode();
 
   void addComponent(std::string key, void (*newFunc)(Component<BasicNode*>* host));
@@ -39,6 +41,8 @@ public:
   void render();
   void setTexture(std::string path);
   void setTexture(AdamTexture* newTexture);
+  void setPos(int x, int y);
+  void setDim(int w, int y);
 
   //Don't call this directly, let the universe run its course
   void performLogic();
@@ -76,12 +80,13 @@ public:
   void performLogic();
   void render();
   void setCamera(int x, int y, int w, int h);
+  SDL_Rect* getCamera() {return &camera->cameraRect;}
 
   std::vector<SceneNode*> sceneNodes;
   Camera* camera;
 
-  int width = 1280;
-  int height = 720;
+  int width;
+  int height;
 };
 
 extern std::vector<SDL_Event> keyboardInputs;

@@ -10,11 +10,11 @@ compiled := $(files:%.cpp=$(obj_dir)/%.o)
 CXX := g++
 
 ifeq ($(UNAME), Linux)
-CXXFLAGS := -w -O2 -lSDL2 -lSDL2_image
+CXXFLAGS := -w -O2 -lSDL2 -lSDL2_image -lSDL2_ttf
 endif
 
 ifeq ($(UNAME), Windows)
-CXXFLAGS := -static-libgcc -static-libstdc++ -mwindows -w -O2 -lSDL2 -lSDL2_image
+CXXFLAGS := -static-libgcc -static-libstdc++ -mwindows -w -O2 -lSDL2 -lSDL2_image -lSDL2_ttf
 endif
 
 

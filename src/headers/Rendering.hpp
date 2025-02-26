@@ -6,6 +6,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 class Scene;
 class Game;
@@ -23,7 +24,6 @@ public:
   void resizeWindow(int newW, int newH);
   void renderGame();
   void setViewport(int x, int y);
-  void setCamera(int x, int y, int w, int h);
 
 
   SDL_Renderer* ainitRenderer(bool vsync = false);
@@ -35,11 +35,10 @@ public:
 
   SDL_Window* window = nullptr;
   SDL_Renderer* renderer = nullptr;
+  TTF_Font* font = nullptr;
   SDL_Rect viewport;
 
   int screenW, screenH;
-
-  SDL_Rect camera;
 
   float globalRenderScale = 1.0f;
   bool useViewport = false;
@@ -58,7 +57,7 @@ public:
 
   bool loadFromFile(const std::string path, SDL_Renderer* renderer);
 
-  //bool loadFromText(char* text, SDL_Color textColor, SDL_Renderer* renderer, TTF_Font* font);
+  bool loadFromText(const std::string text, SDL_Color textColor, SDL_Renderer* renderer, TTF_Font* font);
 
   void render(int x, int y, SDL_Renderer* renderer, SDL_Rect* clip = nullptr, SDL_Rect* rSpace = nullptr, double angle = 0.0, SDL_Point center = {0,0}, SDL_Color colorMod = {0,0,0,0});
 

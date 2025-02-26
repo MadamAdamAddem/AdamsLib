@@ -2,6 +2,8 @@
 #include "headers/Scene.hpp"
 #include "headers/Game.hpp"
 
+#define SCREENW 1280
+#define SCREENH 720
 
 GameWindow* gameWindow;
 Game* game;
@@ -54,33 +56,33 @@ bool AdamTexture::loadFromFile(const std::string path, SDL_Renderer* renderer)
 
 }
 
-/*bool AdamTexture::loadFromText(char* text, SDL_Color textColor, SDL_Renderer* renderer, TTF_Font* font)
+bool AdamTexture::loadFromText(const std::string text, SDL_Color textColor, SDL_Renderer* renderer, TTF_Font* font)
 {
-    free();
-    
-    SDL_Surface* tmpSurface = TTF_RenderUTF8_Blended(font, text, textColor);
+  free();
+  
+  SDL_Surface* tmpSurface = TTF_RenderUTF8_Blended(font, text.c_str(), textColor);
 
-    if(tmpSurface == NULL)
-    {
-        std::cout << "Text failure\n" << std::endl;
-        return false;
-    }
+  if(tmpSurface == NULL)
+  {
+      std::cout << "Text failure\n" << std::endl;
+      return false;
+  }
 
-    texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
-    if(texture == NULL)
-    {
-        std::cout << "Text texture failure\n" << std::endl;
-        return false;
-    }
+  texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
+  if(texture == NULL)
+  {
+      std::cout << "Text texture failure\n" << std::endl;
+      return false;
+  }
 
-    tWidth = tmpSurface->w;
-    tHeight = tmpSurface->h;
+  tWidth = tmpSurface->w;
+  tHeight = tmpSurface->h;
 
-    SDL_FreeSurface(tmpSurface);
-    SDL_SetTextureScaleMode(texture, SDL_ScaleModeBest);
-    
-    return true;
-} */
+  SDL_FreeSurface(tmpSurface);
+  SDL_SetTextureScaleMode(texture, SDL_ScaleModeNearest);
+  
+  return true;
+}
 
 void AdamTexture::render(int x, int y, SDL_Renderer* renderer, SDL_Rect* clip, SDL_Rect* rSpace, double angle, SDL_Point center, SDL_Color colorMod)
 {
@@ -145,15 +147,14 @@ GameWindow::GameWindow() : GameWindow(640, 360)
   
 }
 
-GameWindow::GameWindow(int SCREENW, int SCREENH)
+GameWindow::GameWindow(int newW, int newH)
 {
   window = nullptr;
   renderer = nullptr;
-  screenW = SCREENW;
-  screenH = SCREENH;
-  globalRenderScale = ((float)screenW / 640);
-  viewport = {0,0,SCREENW,SCREENH};
-  camera = {0,0,SCREENW,SCREENH};
+  screenW = newW;
+  screenH = newH;
+  globalRenderScale = screenW / SCREENW;
+  viewport = {0,0,newW,newH};
 
   initAll();
 }
@@ -165,22 +166,28 @@ GameWindow::~GameWindow()
 
 void GameWindow::initAll()
 { 
-  //std::string fontString = "assets/Arial.ttf";
+  std::string fontString = "assets/arial.ttf";
 
   window = ainitWindow();
   if(window == nullptr)
-      exit(1);
+    exit(1);
 
   renderer = ainitRenderer();
   if(renderer == nullptr)
-      exit(1);  
+    exit(1);
+
+  TTF_SetFontHinting(font, TTF_HINTING_NORMAL);
+  font = TTF_OpenFont(fontString.c_str(), 18);
+  if(font == nullptr)
+    exit(1);
 }
 
 void GameWindow::resizeWindow(int newW, int newH)
 {
   screenW = newW;
   screenH = newH;
-  globalRenderScale = newW/320;
+  globalRenderScale = newW / SCREENW;
+  viewport = {0,0,newW,newH};
   SDL_SetWindowSize(window, screenW, screenH);
 }
 
@@ -189,7 +196,7 @@ void GameWindow::renderGame()
 
   SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
   SDL_RenderClear(renderer);
-  SDL_RenderSetViewport(renderer, &viewport);
+  //SDL_RenderSetViewport(renderer, &viewport);
   SDL_RenderSetScale(renderer, globalRenderScale, globalRenderScale);
 
   game->renderScene();
@@ -202,14 +209,6 @@ void GameWindow::setViewport(int x, int y)
 {
   viewport.x += x;
   viewport.y += y;
-}
-
-void GameWindow::setCamera(int x, int y, int w, int h)
-{
-  camera.x = x;
-  camera.y = y;
-  camera.w = w;
-  camera.h = h;
 }
 
 //Initiates SDL, SDL_image, and SDL_TTF with a window
@@ -247,11 +246,11 @@ SDL_Window* GameWindow::ainitWindow()
   }
 
   //Initialize SDL_ttf
-  /*if(TTF_Init() == -1)
+  if(TTF_Init() == -1)
   {
     printf( "SDL_ttf initialization failed\n");
     return NULL;
-  } */
+  } 
     
 
     return tempWindow;
@@ -278,28 +277,6 @@ SDL_Renderer* GameWindow::ainitRenderer(bool vsync)
 
 
 
-
-/*void initAll(int SCREENW, int SCREENH, SDL_Window** window, SDL_Renderer** renderer, TTF_Font** font)
-{
-  
-  std::string fontString = "assets/Arial.ttf";
-
-  *window = ainitWindow("Test Game", SCREENW, SCREENH);
-  if(window == NULL)
-      exit(1);
-
-  *renderer = ainitRenderer(*window);
-  if(renderer == NULL)
-      exit(1);
-
-  TTF_SetFontHinting(*font, TTF_HINTING_NORMAL);
-  *font = TTF_OpenFont(fontString.c_str(), 100);
-  if(*font == NULL)
-      exit(1);
-
-  
-  
-} */
 
 
 

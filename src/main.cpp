@@ -8,6 +8,7 @@ int main()
 {
   AdamInit();
 
+  gameWindow->resizeWindow(1280, 720);
   game->loadScene(exampleScene());
 
   while(handleEvents()) 
