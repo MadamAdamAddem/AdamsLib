@@ -3,6 +3,8 @@
 #define MOVESPEED 5
 
 
+std::vector<SDL_Rect> rectVect;
+
 /*
 void doLogic(Component<BasicNode*>* host)
 {
@@ -187,6 +189,7 @@ void logicSideBar(Component<BasicNode*>* host)
   static SDL_Rect sceneHitbox = {1135, 25, 135, 25};
   static SDL_Rect nodeHitbox = {1135, 65, 135, 25};
   static SDL_Rect textureHitbox = {1135, 105, 135, 25};
+  static SDL_Rect enterHitbox = {1080, 200, 85, 25};
 
   static std::string sceneString = " ";
   static std::string nodeString = " ";
@@ -214,6 +217,8 @@ void logicSideBar(Component<BasicNode*>* host)
         backspace = true;
         break;
       }
+
+      
     }
 
   }
@@ -239,6 +244,16 @@ void logicSideBar(Component<BasicNode*>* host)
         takeTextInput = true;
         currentString = 3;
       }
+      else if(SDL_HasIntersection(&enterHitbox, &mouseRect))
+      {
+        if(nodeString.length() > 1 && textureString.length() > 1)
+        {
+          rectVect.push_back({100,100,100,100});
+          nodeString = " ";
+          textureString = " ";
+        }
+      }
+
       else
       {
         takeTextInput = false;
@@ -283,6 +298,51 @@ void logicSideBar(Component<BasicNode*>* host)
 }
 
 
+void renderObjectPlacer(BasicNode* parent)
+{
+  SDL_SetRenderDrawColor(gameWindow->renderer, 0, 0, 0, 0);
+  for(auto rect : rectVect)
+  {
+    SDL_RenderDrawRect(gameWindow->renderer, &rect);
+  }
+  SDL_SetRenderDrawColor(gameWindow->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+}
+
+void logicObjectPlacer(Component<BasicNode*>* host)
+{
+
+  SDL_Rect mouseRect = {mouse.x, mouse.y, 10, 10};
+  static SDL_Rect* chosenRect = nullptr;
+
+  for(auto mouseInput : mouseInputs)
+  {
+    if(mouseInput.type == SDL_MOUSEBUTTONDOWN)
+    {
+      for(auto& rect : rectVect)
+      {
+        if(SDL_HasIntersection(&rect, &mouseRect))
+        {
+          chosenRect = &rect;
+        }
+      }
+    }
+
+    if(mouseInput.type == SDL_MOUSEBUTTONUP)
+      chosenRect = nullptr;
+  }
+
+
+  if(chosenRect != nullptr)
+  {
+    chosenRect->x += mouse.x - mouse.prevX;
+    chosenRect->y += mouse.y - mouse.prevY;
+  }
+
+
+
+}
+
+
 
 Scene* exampleScene()
 {
@@ -293,7 +353,6 @@ Scene* exampleScene()
   sideBar->setPos(980, 0);
   sideBar->setDim(300, 720);
   sideBar->setTexture("assets/sidebar.png");
-
 
   sideBar->textureMap["sceneText"] = new AdamTexture;
   sideBar->textureMap["sceneText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
@@ -310,11 +369,15 @@ Scene* exampleScene()
   sideBar->var["ttextX"] = 1135;
   sideBar->var["ttextY"] = 105;
 
-
-
-
-  sideBar->addComponent("dick", logicSideBar);
+  sideBar->addComponent("sideBar", logicSideBar);
   newScene->sceneNodes.push_back(sideBar);
+
+
+  BasicNode* objectPlacer = new BasicNode(newScene, renderObjectPlacer);
+  objectPlacer->setPos(0,0);
+  objectPlacer->setDim(0,0);
+  objectPlacer->addComponent("objectPlacer", logicObjectPlacer);
+  newScene->sceneNodes.push_back(objectPlacer);
   
   
 

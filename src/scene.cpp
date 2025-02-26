@@ -82,8 +82,6 @@ void BasicNode::render()
     renderfuncptr(this);
     return;
   } 
-
-  if(textureMap["main"]!=nullptr) textureMap["main"]->render(var["x"], var["y"], gameWindow->renderer);
 }
 
 void BasicNode::setTexture(std::string path)
