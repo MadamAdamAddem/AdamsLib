@@ -2,8 +2,17 @@
 
 #define MOVESPEED 5
 
+struct placedObject
+{
+  SDL_Rect bounds;
+  std::string objName;
+  AdamTexture* texture;
 
-std::vector<SDL_Rect> rectVect;
+  ~placedObject() {std::cout << "FUCK YOU" << std::endl;}
+
+}typedef placedObject;
+
+std::vector<placedObject*> objVect;
 
 /*
 void doLogic(Component<BasicNode*>* host)
@@ -179,19 +188,16 @@ Scene* exampleScene()
 void renderSideBar(BasicNode* parent)
 {
   parent->textureMap["main"]->render(parent->var["x"], parent->var["y"], gameWindow->renderer);
-  parent->textureMap["sceneText"]->render(parent->var["stextX"], parent->var["stextY"], gameWindow->renderer);
   parent->textureMap["nodeText"]->render(parent->var["ntextX"], parent->var["ntextY"], gameWindow->renderer);
   parent->textureMap["textureText"]->render(parent->var["ttextX"], parent->var["ttextY"], gameWindow->renderer);
 }
 
 void logicSideBar(Component<BasicNode*>* host)
 {
-  static SDL_Rect sceneHitbox = {1135, 25, 135, 25};
-  static SDL_Rect nodeHitbox = {1135, 65, 135, 25};
-  static SDL_Rect textureHitbox = {1135, 105, 135, 25};
-  static SDL_Rect enterHitbox = {1080, 200, 85, 25};
+  static SDL_Rect nodeHitbox = {1635, 65, 135, 25};
+  static SDL_Rect textureHitbox = {1635, 105, 135, 25};
+  static SDL_Rect enterHitbox = {1580, 200, 85, 25};
 
-  static std::string sceneString = " ";
   static std::string nodeString = " ";
   static std::string textureString = " ";
   static int currentString = 0;
@@ -227,33 +233,32 @@ void logicSideBar(Component<BasicNode*>* host)
   {
     if(mouseInput.type == SDL_MOUSEBUTTONDOWN)
     {
-      if(SDL_HasIntersection(&sceneHitbox, &mouseRect))
+      if(SDL_HasIntersection(&nodeHitbox, &mouseRect))
       {
         takeTextInput = true;
         currentString = 1;
       }
-
-      else if(SDL_HasIntersection(&nodeHitbox, &mouseRect))
-      {
-        takeTextInput = true;
-        currentString = 2;
-      }
-
       else if(SDL_HasIntersection(&textureHitbox, &mouseRect))
       {
         takeTextInput = true;
-        currentString = 3;
+        currentString = 2;
       }
       else if(SDL_HasIntersection(&enterHitbox, &mouseRect))
       {
         if(nodeString.length() > 1 && textureString.length() > 1)
         {
-          rectVect.push_back({100,100,100,100});
-          nodeString = " ";
-          textureString = " ";
+          placedObject* newObj = new placedObject;
+          newObj->texture = new AdamTexture;
+          newObj->bounds = {100, 100, newObj->texture->getWidth(), newObj->texture->getHeight()};
+          newObj->objName = nodeString;
+
+
+          textureString.erase(0,1);
+          newObj->texture->loadFromFile("assets/" + textureString, gameWindow->renderer);
+          objVect.push_back(newObj);
+          textureString.insert(textureString.begin(), ' ');
         }
       }
-
       else
       {
         takeTextInput = false;
@@ -268,14 +273,6 @@ void logicSideBar(Component<BasicNode*>* host)
     case 0:
       break;
     case 1:
-      if(backspace && sceneString.length() > 1)
-        sceneString.pop_back();
-      else
-        sceneString += wstring;
-
-      host->parent->textureMap["sceneText"]->loadFromText(sceneString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-      break;
-    case 2:
       if(backspace && nodeString.length() > 1)
         nodeString.pop_back();
       else
@@ -283,7 +280,7 @@ void logicSideBar(Component<BasicNode*>* host)
 
       host->parent->textureMap["nodeText"]->loadFromText(nodeString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
       break;
-    case 3:
+    case 2:
       if(backspace && textureString.length() > 1)
         textureString.pop_back();
       else
@@ -301,16 +298,16 @@ void logicSideBar(Component<BasicNode*>* host)
 void renderObjectPlacer(BasicNode* parent)
 {
   SDL_SetRenderDrawColor(gameWindow->renderer, 0, 0, 0, 0);
-  for(auto rect : rectVect)
+  for(auto rect : objVect)
   {
-    SDL_RenderDrawRect(gameWindow->renderer, &rect);
+    rect->texture->render(rect->bounds.x, rect->bounds.y, gameWindow->renderer);
+    //SDL_RenderDrawRect(gameWindow->renderer, &rect.bounds);
   }
   SDL_SetRenderDrawColor(gameWindow->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 }
 
 void logicObjectPlacer(Component<BasicNode*>* host)
 {
-
   SDL_Rect mouseRect = {mouse.x, mouse.y, 10, 10};
   static SDL_Rect* chosenRect = nullptr;
 
@@ -318,11 +315,11 @@ void logicObjectPlacer(Component<BasicNode*>* host)
   {
     if(mouseInput.type == SDL_MOUSEBUTTONDOWN)
     {
-      for(auto& rect : rectVect)
+      for(auto& rect : objVect)
       {
-        if(SDL_HasIntersection(&rect, &mouseRect))
+        if(SDL_HasIntersection(&rect->bounds, &mouseRect))
         {
-          chosenRect = &rect;
+          chosenRect = &rect->bounds;
         }
       }
     }
@@ -346,31 +343,28 @@ void logicObjectPlacer(Component<BasicNode*>* host)
 
 Scene* exampleScene()
 {
-  Scene* newScene = new Scene(0, 0, 1280, 720);
+  Scene* newScene = new Scene(0, 0, 1780, 720);
   
-  
+//sidebar serena your husband a groupie
+{
   BasicNode* sideBar = new BasicNode(newScene, renderSideBar);
-  sideBar->setPos(980, 0);
+  sideBar->setPos(1480, 0);
   sideBar->setDim(300, 720);
   sideBar->setTexture("assets/sidebar.png");
 
-  sideBar->textureMap["sceneText"] = new AdamTexture;
-  sideBar->textureMap["sceneText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-  sideBar->var["stextX"] = 1135;
-  sideBar->var["stextY"] = 25;
-
   sideBar->textureMap["nodeText"] = new AdamTexture;
   sideBar->textureMap["nodeText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-  sideBar->var["ntextX"] = 1135;
+  sideBar->var["ntextX"] = 1635;
   sideBar->var["ntextY"] = 65;
 
   sideBar->textureMap["textureText"] = new AdamTexture;
   sideBar->textureMap["textureText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-  sideBar->var["ttextX"] = 1135;
+  sideBar->var["ttextX"] = 1635;
   sideBar->var["ttextY"] = 105;
 
   sideBar->addComponent("sideBar", logicSideBar);
   newScene->sceneNodes.push_back(sideBar);
+}
 
 
   BasicNode* objectPlacer = new BasicNode(newScene, renderObjectPlacer);
