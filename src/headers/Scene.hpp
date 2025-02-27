@@ -53,7 +53,7 @@ public:
 
   //"main" is main texture, already initialized. call textureMap["main"]->replaceTexture or textureMap["main"]->loadFromFile to change.
   std::map<std::string, AdamTexture*> textureMap;
-  std::map<std::string, int> var;
+  std::map<std::string, float> var;
 
 };
 
@@ -65,7 +65,7 @@ public:
   ~Camera();
 
 
-  double scale;
+  float scale;
   SDL_Rect cameraRect;
 };
 

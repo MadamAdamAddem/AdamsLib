@@ -4,7 +4,7 @@
 
 struct placedObject
 {
-  SDL_Rect bounds;
+  SDL_FRect bounds;
   std::string objName;
   AdamTexture* texture;
 
@@ -194,15 +194,15 @@ void renderSideBar(BasicNode* parent)
 
 void logicSideBar(Component<BasicNode*>* host)
 {
-  static SDL_Rect nodeHitbox = {1435, 65, 135, 25};
-  static SDL_Rect textureHitbox = {1435, 105, 135, 25};
-  static SDL_Rect enterHitbox = {1380, 200, 85, 25};
+  static SDL_FRect nodeHitbox = {1435, 65, 135, 25};
+  static SDL_FRect textureHitbox = {1435, 105, 135, 25};
+  static SDL_FRect enterHitbox = {1380, 200, 85, 25};
 
   static std::string nodeString = " ";
   static std::string textureString = " ";
   static int currentString = 0;
 
-  SDL_Rect mouseRect = {mouse.x, mouse.y, 10, 10};
+  SDL_FRect mouseRect = {mouse.x, mouse.y, 10, 10};
 
   std::string wstring = "";
   bool backspace = false;
@@ -233,17 +233,17 @@ void logicSideBar(Component<BasicNode*>* host)
   {
     if(mouseInput.type == SDL_MOUSEBUTTONDOWN)
     {
-      if(SDL_HasIntersection(&nodeHitbox, &mouseRect))
+      if(SDL_HasIntersectionF(&nodeHitbox, &mouseRect))
       {
         takeTextInput = true;
         currentString = 1;
       }
-      else if(SDL_HasIntersection(&textureHitbox, &mouseRect))
+      else if(SDL_HasIntersectionF(&textureHitbox, &mouseRect))
       {
         takeTextInput = true;
         currentString = 2;
       }
-      else if(SDL_HasIntersection(&enterHitbox, &mouseRect))
+      else if(SDL_HasIntersectionF(&enterHitbox, &mouseRect))
       {
         if(nodeString.length() > 1 && textureString.length() > 1)
         {
@@ -254,7 +254,7 @@ void logicSideBar(Component<BasicNode*>* host)
 
           textureString.erase(0,1);
           newObj->texture->loadFromFile("assets/" + textureString, gameWindow->renderer);
-          newObj->bounds = {100, 100, newObj->texture->getWidth(), newObj->texture->getHeight()};
+          newObj->bounds = {100.0f, 100.0f, (float)newObj->texture->getWidth(), (float)newObj->texture->getHeight()};
           objVect.push_back(newObj);
           textureString.insert(textureString.begin(), ' ');
         }
@@ -294,6 +294,9 @@ void logicSideBar(Component<BasicNode*>* host)
 
 }
 
+//-----------------------------------------------------------------------------------------
+
+
 void renderObjectPlacer(BasicNode* parent)
 {
   Camera* cam = parent->parentScene->camera;
@@ -306,22 +309,37 @@ void renderObjectPlacer(BasicNode* parent)
 
 }
 
+SDL_FRect camAdjustedBounds(SDL_FRect* rect)
+{
+  Camera* cam = game->currentScene->camera;
+  SDL_FRect newRect;
+  newRect.x = (rect->x - cam->cameraRect.x)*cam->scale;
+  newRect.y = (rect->y - cam->cameraRect.y)*cam->scale;
+  newRect.w = rect->w * cam->scale;
+  newRect.h = rect->h * cam->scale;
+
+  return newRect;
+}
+
 void logicObjectPlacer(Component<BasicNode*>* host)
 {
   Camera* cam = host->parent->parentScene->camera;
 
-  SDL_Rect mouseRect = {mouse.x-cam->cameraRect.x, mouse.y-cam->cameraRect.y, 10*cam->scale, 10*cam->scale};
-  static SDL_Rect* chosenRect = nullptr;
+  SDL_FRect mouseRect = {(mouse.x-cam->cameraRect.x), (mouse.y-cam->cameraRect.y), 1, 1};
+  static SDL_FRect* chosenRect = nullptr;
 
   for(auto mouseInput : mouseInputs)
   {
     if(mouseInput.type == SDL_MOUSEBUTTONDOWN)
     {
+      //this is probably really expensive but idc
       for(auto& rect : objVect)
       {
-        if(SDL_HasIntersection(&rect->bounds, &mouseRect))
+        SDL_FRect tmp = camAdjustedBounds(&rect->bounds);
+        if(SDL_HasIntersectionF(&tmp, &mouseRect))
         {
           chosenRect = &rect->bounds;
+          break;
         }
       }
     }
@@ -338,8 +356,8 @@ void logicObjectPlacer(Component<BasicNode*>* host)
 
   if(chosenRect != nullptr)
   {
-    chosenRect->x += mouse.x - mouse.prevX;
-    chosenRect->y += mouse.y - mouse.prevY;
+    chosenRect->x += (mouse.x - mouse.prevX)/cam->scale;
+    chosenRect->y += (mouse.y - mouse.prevY)/cam->scale;
   }
 
 
