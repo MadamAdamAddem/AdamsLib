@@ -65,7 +65,7 @@ public:
   ~Camera();
 
 
-
+  double scale;
   SDL_Rect cameraRect;
 };
 

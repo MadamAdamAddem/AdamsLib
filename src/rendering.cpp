@@ -84,7 +84,7 @@ bool AdamTexture::loadFromText(const std::string text, SDL_Color textColor, SDL_
   return true;
 }
 
-void AdamTexture::render(int x, int y, SDL_Renderer* renderer, SDL_Rect* clip, SDL_Rect* rSpace, double angle, SDL_Point center, SDL_Color colorMod)
+void AdamTexture::render(int x, int y, SDL_Renderer* renderer, double renderScale, SDL_Rect* clip, SDL_Rect* rSpace, double angle, SDL_Point center, SDL_Color colorMod)
 {
   if(texture == nullptr || renderer == nullptr)
     return;
@@ -95,8 +95,8 @@ void AdamTexture::render(int x, int y, SDL_Renderer* renderer, SDL_Rect* clip, S
   {
     renderSpace.x = x;
     renderSpace.y = y;
-    renderSpace.w = tWidth;
-    renderSpace.h = tHeight;
+    renderSpace.w = tWidth * renderScale;
+    renderSpace.h = tHeight * renderScale;
     rSpace = &renderSpace;
   }
   

@@ -8,14 +8,14 @@ int main()
 {
   AdamInit();
 
-  gameWindow->resizeWindow(1780, 720);
+  gameWindow->resizeWindow(1580, 720);
   game->loadScene(exampleScene());
 
   while(handleEvents()) 
   {  
     game->performGameLogic();
     gameWindow->renderGame();
-    reduceFrames(20);
+    reduceFrames(60);
   }
 
   AdamClose();

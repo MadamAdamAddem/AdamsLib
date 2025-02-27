@@ -31,8 +31,6 @@ void Scene::render()
     node->render();
   }
 
-  //SDL_Rect shitfuck = {100, 100, 50, 50};
-  //SDL_RenderDrawRect(gameWindow->renderer, &shitfuck);
 }
 
 void Scene::performLogic()
@@ -132,6 +130,7 @@ Camera::Camera() : Camera(0, 0, gameWindow->screenW, gameWindow->screenH)
 Camera::Camera(int x, int y, int w, int h)
 {
   cameraRect = {x, y, w, h};
+  scale = 1.0f;
 }
 
 Camera::~Camera()

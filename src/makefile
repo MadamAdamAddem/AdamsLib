@@ -10,7 +10,7 @@ compiled := $(files:%.cpp=$(obj_dir)/%.o)
 CXX := g++
 
 ifeq ($(UNAME), Linux)
-CXXFLAGS := -w -O2 -lSDL2 -lSDL2_image -lSDL2_ttf
+CXXFLAGS := -Wno-error -O2 -lSDL2 -lSDL2_image -lSDL2_ttf
 endif
 
 ifeq ($(UNAME), Windows)
@@ -24,7 +24,7 @@ all: ./l
 	$(CXX) $(compiled) $(CXXFLAGS) -o $@
 
 $(obj_dir)/%.o: %.cpp | $(obj_dir)
-	$(CXX) -c $< -o $@
+	$(CXX) -c -Wno-error $< -o $@
 
 $(obj_dir):
 	mkdir $(obj_dir)

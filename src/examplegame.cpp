@@ -8,7 +8,7 @@ struct placedObject
   std::string objName;
   AdamTexture* texture;
 
-  ~placedObject() {std::cout << "FUCK YOU" << std::endl;}
+  ~placedObject() {texture->free();}
 
 }typedef placedObject;
 
@@ -194,9 +194,9 @@ void renderSideBar(BasicNode* parent)
 
 void logicSideBar(Component<BasicNode*>* host)
 {
-  static SDL_Rect nodeHitbox = {1635, 65, 135, 25};
-  static SDL_Rect textureHitbox = {1635, 105, 135, 25};
-  static SDL_Rect enterHitbox = {1580, 200, 85, 25};
+  static SDL_Rect nodeHitbox = {1435, 65, 135, 25};
+  static SDL_Rect textureHitbox = {1435, 105, 135, 25};
+  static SDL_Rect enterHitbox = {1380, 200, 85, 25};
 
   static std::string nodeString = " ";
   static std::string textureString = " ";
@@ -249,12 +249,12 @@ void logicSideBar(Component<BasicNode*>* host)
         {
           placedObject* newObj = new placedObject;
           newObj->texture = new AdamTexture;
-          newObj->bounds = {100, 100, newObj->texture->getWidth(), newObj->texture->getHeight()};
           newObj->objName = nodeString;
 
 
           textureString.erase(0,1);
           newObj->texture->loadFromFile("assets/" + textureString, gameWindow->renderer);
+          newObj->bounds = {100, 100, newObj->texture->getWidth(), newObj->texture->getHeight()};
           objVect.push_back(newObj);
           textureString.insert(textureString.begin(), ' ');
         }
@@ -294,21 +294,23 @@ void logicSideBar(Component<BasicNode*>* host)
 
 }
 
-
 void renderObjectPlacer(BasicNode* parent)
 {
-  SDL_SetRenderDrawColor(gameWindow->renderer, 0, 0, 0, 0);
+  Camera* cam = parent->parentScene->camera;
+  parent->textureMap["main"]->render((parent->var["x"]-cam->cameraRect.x)*cam->scale, (parent->var["y"]-cam->cameraRect.y)*cam->scale, gameWindow->renderer, cam->scale);
+
   for(auto rect : objVect)
   {
-    rect->texture->render(rect->bounds.x, rect->bounds.y, gameWindow->renderer);
-    //SDL_RenderDrawRect(gameWindow->renderer, &rect.bounds);
+    rect->texture->render((rect->bounds.x-cam->cameraRect.x)*cam->scale, (rect->bounds.y-cam->cameraRect.y)*cam->scale, gameWindow->renderer, cam->scale);
   }
-  SDL_SetRenderDrawColor(gameWindow->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
 }
 
 void logicObjectPlacer(Component<BasicNode*>* host)
 {
-  SDL_Rect mouseRect = {mouse.x, mouse.y, 10, 10};
+  Camera* cam = host->parent->parentScene->camera;
+
+  SDL_Rect mouseRect = {mouse.x-cam->cameraRect.x, mouse.y-cam->cameraRect.y, 10*cam->scale, 10*cam->scale};
   static SDL_Rect* chosenRect = nullptr;
 
   for(auto mouseInput : mouseInputs)
@@ -322,6 +324,11 @@ void logicObjectPlacer(Component<BasicNode*>* host)
           chosenRect = &rect->bounds;
         }
       }
+    }
+    if(mouseInput.type == SDL_MOUSEWHEEL)
+    {
+      //gameWindow->globalRenderScale += (mouseInput.wheel.y * 0.25f);
+      host->parent->parentScene->camera->scale += (mouseInput.wheel.y * 0.25f);
     }
 
     if(mouseInput.type == SDL_MOUSEBUTTONUP)
@@ -343,36 +350,40 @@ void logicObjectPlacer(Component<BasicNode*>* host)
 
 Scene* exampleScene()
 {
-  Scene* newScene = new Scene(0, 0, 1780, 720);
+  Scene* newScene = new Scene(0, 0, 1580, 720);
+  newScene->setCamera(0,0,1580, 720);
   
+
+{
+  BasicNode* objectPlacer = new BasicNode(newScene, renderObjectPlacer);
+  objectPlacer->setPos(0,0);
+  objectPlacer->setDim(1280, 720);
+  objectPlacer->setTexture("assets/bigbg.png");
+  objectPlacer->addComponent("objectPlacer", logicObjectPlacer);
+  newScene->sceneNodes.push_back(objectPlacer);
+}
+
 //sidebar serena your husband a groupie
 {
   BasicNode* sideBar = new BasicNode(newScene, renderSideBar);
-  sideBar->setPos(1480, 0);
+  sideBar->setPos(1280, 0);
   sideBar->setDim(300, 720);
   sideBar->setTexture("assets/sidebar.png");
 
   sideBar->textureMap["nodeText"] = new AdamTexture;
   sideBar->textureMap["nodeText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-  sideBar->var["ntextX"] = 1635;
+  sideBar->var["ntextX"] = 1435;
   sideBar->var["ntextY"] = 65;
 
   sideBar->textureMap["textureText"] = new AdamTexture;
   sideBar->textureMap["textureText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-  sideBar->var["ttextX"] = 1635;
+  sideBar->var["ttextX"] = 1435;
   sideBar->var["ttextY"] = 105;
 
   sideBar->addComponent("sideBar", logicSideBar);
   newScene->sceneNodes.push_back(sideBar);
 }
 
-
-  BasicNode* objectPlacer = new BasicNode(newScene, renderObjectPlacer);
-  objectPlacer->setPos(0,0);
-  objectPlacer->setDim(0,0);
-  objectPlacer->addComponent("objectPlacer", logicObjectPlacer);
-  newScene->sceneNodes.push_back(objectPlacer);
-  
   
 
   
