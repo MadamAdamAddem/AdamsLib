@@ -20,177 +20,6 @@ struct placedObject
 
 std::vector<placedObject*> objVect;
 
-/*
-void doLogic(Component<BasicNode*>* host)
-{
-  static bool keystates[4] = {false,false,false,false};
-
-
-  BasicNode* parentNode = host->parent;
-
-  
-  for(auto keyInput : keyboardInputs)
-  {
-    bool keyUp = (keyInput.type == SDL_KEYUP);
-    switch(keyInput.key.keysym.sym)
-    {
-      case SDLK_w:
-        keystates[0] = !keyUp;
-        break;
-      case SDLK_a:
-        keystates[1] = !keyUp;
-        break;
-      case SDLK_s:
-        keystates[2] = !keyUp;
-        break;
-      case SDLK_d:
-        keystates[3] = !keyUp;
-        break;
-      case SDLK_o:
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  if(keystates[0])
-    parentNode->var["y"] -= MOVESPEED;
-
-  if(keystates[1])
-    parentNode->var["x"] -= MOVESPEED;
-
-  if(keystates[2])
-    parentNode->var["y"] += MOVESPEED;
-
-  if(keystates[3])
-    parentNode->var["x"] += MOVESPEED;
-
-
-  for(auto mouseInput : mouseInputs)
-  {
-
-
-    switch(mouseInput.type)
-    {
-      case SDL_MOUSEWHEEL:
-        //gameWindow->globalRenderScale += (mouseInput.wheel.y * 0.25f);
-        break;
-
-      case SDL_MOUSEBUTTONDOWN:
-        break;
-
-      case SDL_MOUSEBUTTONUP:
-        break;
-      default:
-        break;
-
-    }
-
-
-  }
-    //if(mouse.isPressed)
-      //gameWindow->setViewport(mouse.x-mouse.prevX, mouse.y-mouse.prevY);
-
-}
-
-void doRender(BasicNode* parent)
-{
-  int camX = parent->parentScene->getCamera()->x;
-  int camY = parent->parentScene->getCamera()->y;
-
-  parent->textureMap["main"]->render(parent->var["x"]-camX, parent->var["y"]-camY, gameWindow->renderer);
-}
-
-
-
-void doLogic2(Component<BasicNode*>* host)
-{
-  static bool keystates[4] = {false,false,false,false};
-
-
-  BasicNode* parentNode = host->parent;
-  SDL_Rect* camera = parentNode->parentScene->getCamera();
-
-  
-  for(auto keyInput : keyboardInputs)
-  {
-    bool keyUp = (keyInput.type == SDL_KEYUP);
-    switch(keyInput.key.keysym.sym)
-    {
-      case SDLK_t:
-        keystates[0] = !keyUp;
-        break;
-      case SDLK_f:
-        keystates[1] = !keyUp;
-        break;
-      case SDLK_g:
-        keystates[2] = !keyUp;
-        break;
-      case SDLK_h:
-        keystates[3] = !keyUp;
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  if(keystates[0])
-    camera->y -= MOVESPEED;
-
-  if(keystates[1])
-    camera->x -= MOVESPEED;  
-    //parentNode->var["x"] -= MOVESPEED;
-
-  if(keystates[2])
-    camera->y += MOVESPEED;
-    //parentNode->var["y"] += MOVESPEED;
-
-  if(keystates[3])
-    camera->x += MOVESPEED;
-
-
-
-  if(camera->x < 0)
-    camera->x = 0;
-
-  if(camera->x > parentNode->parentScene->width - camera->w)
-    camera->x = parentNode->parentScene->width - camera->w;
-
-  if(camera->y < 0)
-    camera->y = 0;
-
-  if(camera->y > parentNode->parentScene->height - camera->h)
-    camera->y = parentNode->parentScene->height - camera->h;
-}
-
-void doRender2(BasicNode* parent)
-{
-  parent->textureMap["main"]->render(parent->var["x"], parent->var["y"], gameWindow->renderer, parent->parentScene->getCamera());
-}
-
-Scene* exampleScene()
-{
-  Scene* newScene = new Scene(0, 0, 1280, 720);
-  
-  
-  BasicNode* node2 = new BasicNode(doRender2, newScene);
-  node2->setTexture("assets/tempbg.png");
-  node2->addComponent("dick", doLogic2);
-  newScene->sceneNodes.push_back(node2);
-  
-  BasicNode* node1 = new BasicNode(doRender, newScene);
-  node1->textureMap["main"]->loadFromText("dick fuck", {0,0,0,0}, gameWindow->renderer, gameWindow->font);
-  node1->addComponent("balls", doLogic);
-  newScene->sceneNodes.push_back(node1);
-
-  
-
-  
-  return newScene;
-} */
-
 void saveAndExit()
 {
   FILE* fp = fopen("../newFile.cpp", "w");
@@ -425,6 +254,17 @@ void logicSideBar(Component<BasicNode*>* host)
 
 //-----------------------------------------------------------------------------------------
 
+SDL_Rect camAdjustedBounds(SDL_Rect* rect)
+{
+  Camera* cam = game->currentScene->camera;
+  SDL_Rect newRect;
+  newRect.x = (rect->x - cam->cameraRect.x)*cam->scale;
+  newRect.y = (rect->y - cam->cameraRect.y)*cam->scale;
+  newRect.w = rect->w * cam->scale;
+  newRect.h = rect->h * cam->scale;
+
+  return newRect;
+}
 
 void renderObjectPlacer(BasicNode* parent)
 {
@@ -438,21 +278,10 @@ void renderObjectPlacer(BasicNode* parent)
 
 }
 
-SDL_Rect camAdjustedBounds(SDL_Rect* rect)
-{
-  Camera* cam = game->currentScene->camera;
-  SDL_Rect newRect;
-  newRect.x = (rect->x - cam->cameraRect.x)*cam->scale;
-  newRect.y = (rect->y - cam->cameraRect.y)*cam->scale;
-  newRect.w = rect->w * cam->scale;
-  newRect.h = rect->h * cam->scale;
-
-  return newRect;
-}
-
 void logicObjectPlacer(Component<BasicNode*>* host)
 {
   Camera* cam = host->parent->parentScene->camera;
+  BasicNode* self = host->parent;
 
   SDL_Rect mouseRect = {(mouse.x-cam->cameraRect.x), (mouse.y-cam->cameraRect.y), 1, 1};
   static SDL_Rect* chosenRect = nullptr;
@@ -471,6 +300,13 @@ void logicObjectPlacer(Component<BasicNode*>* host)
           break;
         }
       }
+
+      SDL_Rect tmp = {self->var["x"], self->var["y"], self->var["w"], self->var["h"]};
+      if(SDL_HasIntersection(&tmp, &mouseRect))
+      {
+        
+      }
+
     }
     if(mouseInput.type == SDL_MOUSEWHEEL)
     {
