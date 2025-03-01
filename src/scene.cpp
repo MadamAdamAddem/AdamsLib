@@ -6,7 +6,7 @@ Scene::Scene() : Scene(0, 0, 1280, 720)
 
 }
 
-Scene::Scene(int x, int y, int w, int h)
+Scene::Scene(float x, float y, float w, float h)
 {
   width = w; height = h;
 
@@ -41,7 +41,7 @@ void Scene::performLogic()
   }
 }
 
-void Scene::setCamera(int x, int y, int w, int h)
+void Scene::setCamera(float x, float y, float w, float h)
 {
   camera->cameraRect = {x, y, w, h};
 }
@@ -127,7 +127,7 @@ Camera::Camera() : Camera(0, 0, gameWindow->screenW, gameWindow->screenH)
 
 }
 
-Camera::Camera(int x, int y, int w, int h)
+Camera::Camera(float x, float y, float w, float h)
 {
   cameraRect = {x, y, w, h};
   scale = 1.0f;

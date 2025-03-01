@@ -1,4 +1,5 @@
 #include "headers/AdamLib.hpp"
+#include <list>
 
 #define MOVESPEED 5
 #define SCREENW 1280
@@ -6,31 +7,34 @@
 
 
 
-struct placedObject
+typedef struct placedObject
 {
-  SDL_Rect bounds;
+  SDL_FRect bounds;
+  float wStretch = 1;
+  float hStretch = 1;
   std::string objName;
   std::string textureName;
   AdamTexture* texture;
 
   ~placedObject() {texture->free();}
 
-}typedef placedObject;
+}placedObject;
 
 
-std::vector<placedObject*> objVect;
+std::list<placedObject*> objList;
 
 void saveAndExit()
 {
+
   FILE* fp = fopen("../newFile.cpp", "w");
   fprintf(fp, "#include \"src/headers/AdamLib.hpp\"\n\n\n");
 
   //stores unique obj names
-  std::map<std::string, bool> objholder; 
-  for(auto object : objVect)
+  std::map<std::string, int> objholder; 
+  for(auto object : objList)
   {
     std::string objName = object->objName;
-    objholder[objName] = true;
+    objholder[objName] = 1;
   }
 
   //creates render and logic functions
@@ -47,34 +51,32 @@ void saveAndExit()
 
 
   //initializes objects
-  int i = 1;
-  for(auto object : objVect)
+  for(auto object : objList)
   {
-    std::string str = object->objName + std::to_string(i);
+    std::string str = object->objName + std::to_string(objholder[object->objName]++);
     std::string funcName = object->objName;
     funcName[0] = std::toupper(object->objName[0]);
 
     fprintf(fp, "//%s\n{\n", str.c_str());
     fprintf(fp, "\tBasicNode* %s = new BasicNode(newScene, render%s);\n", str.c_str(), funcName.c_str());
-    fprintf(fp, "\t%s->setPos(%d, %d);\n", str.c_str(), object->bounds.x, object->bounds.y);
-    fprintf(fp, "\t%s->setDim(%d, %d);\n", str.c_str(), object->bounds.w, object->bounds.h);
+    fprintf(fp, "\t%s->setPos(%.0f, %.0f);\n", str.c_str(), object->bounds.x, object->bounds.y);
+    fprintf(fp, "\t%s->setDim(%.0f, %.0f);\n", str.c_str(), object->bounds.w, object->bounds.h);
     fprintf(fp, "\t%s->setTexture(\"assets/%s.png\");\n", str.c_str(), object->textureName.c_str());
     fprintf(fp, "\t%s->addComponent(\"%s\", logic%s);\n", str.c_str(), str.c_str(), funcName.c_str());
     fprintf(fp, "\tnewScene->sceneNodes.push_back(%s);\n", str.c_str());
 
     fprintf(fp, "\n}\n");
-    ++i;
   }
 
 
   
   fprintf(fp, "\n\n\n\treturn newScene;\n}");
 
-  for(auto object : objVect)
+  for(auto object : objList)
   {
     delete object;
   }
-  objVect.clear();
+  objList.clear();
   exit(1);
 }
 
@@ -85,30 +87,42 @@ void renderSideBar(BasicNode* parent)
   parent->textureMap["textureText"]->render(parent->var["ttextX"], parent->var["ttextY"], gameWindow->renderer);
   parent->textureMap["xcoordText"]->render(parent->var["xtextX"], parent->var["xtextY"], gameWindow->renderer);
   parent->textureMap["ycoordText"]->render(parent->var["ytextX"], parent->var["ytextY"], gameWindow->renderer);
+  parent->textureMap["heightText"]->render(parent->var["htextX"], parent->var["htextY"], gameWindow->renderer);
+  parent->textureMap["widthText"]->render(parent->var["wtextX"], parent->var["wtextY"], gameWindow->renderer);
+  parent->textureMap["heightwidth"]->render(parent->var["hwtextX"], parent->var["hwtextY"], gameWindow->renderer);
+
 }
 
 void logicSideBar(Component<BasicNode*>* host)
 {
-  static SDL_Rect nodeHitbox = {155+SCREENW, 14, 134, 18};
-  static SDL_Rect textureHitbox = {155+SCREENW, 33, 134, 18};
-  static SDL_Rect xcoordHitbox = {155+SCREENW, 54, 134, 18};
-  static SDL_Rect ycoordHitbox = {155+SCREENW, 78, 134, 18};
+  static SDL_FRect nodeHitbox = {155+SCREENW, 14, 134, 18};
+  static SDL_FRect textureHitbox = {155+SCREENW, 45, 134, 18};
+  static SDL_FRect xcoordHitbox = {155+SCREENW, 81, 134, 18};
+  static SDL_FRect ycoordHitbox = {155+SCREENW, 120, 134, 18};
+  static SDL_FRect heightHitbox = {155+SCREENW, 159, 134, 18};
+  static SDL_FRect widthHitbox = {155+SCREENW, 197, 134, 18};
+  static SDL_FRect setCustomDimHitbox = {12+SCREENW, 234, 134, 31};
 
-  static SDL_Rect enterHitbox = {113+SCREENW, 465, 74, 13};
-  static SDL_Rect saveHitbox = {48+SCREENW, 535, 203, 13};
+  static SDL_FRect enterHitbox = {113+SCREENW, 465, 74, 13};
+  static SDL_FRect saveHitbox = {48+SCREENW, 535, 203, 13};
 
   static std::string nodeString = " ";
   static std::string textureString = " ";
   static std::string xcoordString = " ";
   static std::string ycoordString = " ";
+  static std::string heightString = " ";
+  static std::string widthString = " ";
 
   static int currentString = 0;
+  static bool enableCustomDim = false;
 
-  SDL_Rect mouseRect = {mouse.x, mouse.y, 10, 10};
+  SDL_FRect mouseRect = {mouse.x-5, mouse.y-5, 10, 10};
+  BasicNode* self = host->parent;
 
   std::string wstring = "";
   bool backspace = false;
   bool validTextInput = false;
+ 
 
 
   //take keyboard input
@@ -116,7 +130,7 @@ void logicSideBar(Component<BasicNode*>* host)
   {
     if(keyInput.type == SDL_TEXTINPUT)
     {
-      if(currentString != 3 && currentString != 4)
+      if(currentString < 3)
       {
         wstring += keyInput.text.text;
         validTextInput = true;
@@ -138,6 +152,13 @@ void logicSideBar(Component<BasicNode*>* host)
         validTextInput = true;
         break;
       }
+
+      else if(keyInput.key.keysym.sym == SDLK_TAB && currentString != 0)
+      {
+        currentString = (currentString + 1) % ((enableCustomDim*2)+5);
+        validTextInput = true;
+        break;
+      }
     }
 
   }
@@ -147,29 +168,46 @@ void logicSideBar(Component<BasicNode*>* host)
   {
     if(mouseInput.type == SDL_MOUSEBUTTONDOWN)
     {
-      if(SDL_HasIntersection(&nodeHitbox, &mouseRect))
+      if(SDL_HasIntersectionF(&nodeHitbox, &mouseRect))
       {
         takeTextInput = true;
         currentString = 1;
       }
-      else if(SDL_HasIntersection(&textureHitbox, &mouseRect))
+      else if(SDL_HasIntersectionF(&textureHitbox, &mouseRect))
       {
         takeTextInput = true;
         currentString = 2;
       }
-      else if(SDL_HasIntersection(&xcoordHitbox, &mouseRect))
+      else if(SDL_HasIntersectionF(&xcoordHitbox, &mouseRect))
       {
         takeTextInput = true;
         currentString = 3;
       }
-      else if(SDL_HasIntersection(&ycoordHitbox, &mouseRect))
+      else if(SDL_HasIntersectionF(&ycoordHitbox, &mouseRect))
       {
         takeTextInput = true;
         currentString = 4;
       }
+      else if(enableCustomDim && SDL_HasIntersectionF(&heightHitbox, &mouseRect))
+      {
+        takeTextInput = true;
+        currentString = 5;
+      }
+      else if(enableCustomDim && SDL_HasIntersectionF(&widthHitbox, &mouseRect))
+      {
+        takeTextInput = true;
+        currentString = 6;
+      }
+      else if(SDL_HasIntersectionF(&setCustomDimHitbox, &mouseRect))
+      { 
+        enableCustomDim = !enableCustomDim;
+        self->textureMap["heightwidth"]->setAlphaLevel(255*enableCustomDim);
+        self->textureMap["heightText"]->setAlphaLevel(255*enableCustomDim);
+        self->textureMap["widthText"]->setAlphaLevel(255*enableCustomDim);
+      }
       
       //load new object with proper attributes
-      else if(SDL_HasIntersection(&enterHitbox, &mouseRect))
+      else if(SDL_HasIntersectionF(&enterHitbox, &mouseRect))
       {
         if(nodeString.length() > 1 && textureString.length() > 1)
         {
@@ -177,18 +215,24 @@ void logicSideBar(Component<BasicNode*>* host)
           newObj->texture = new AdamTexture;
           newObj->objName = nodeString.substr(1);
           newObj->textureName = textureString.substr(1);
-        
-          int x = (xcoordString.length() > 1 ? std::stoi(xcoordString) : 100);
-          int y = (ycoordString.length() > 1 ? std::stoi(ycoordString) : 100);
-
           newObj->texture->loadFromFile("assets/" + newObj->textureName, gameWindow->renderer);
-          newObj->bounds = {x, y, newObj->texture->getWidth(), newObj->texture->getHeight()};
-          objVect.push_back(newObj);
+
+          float x = (xcoordString.length() > 1 ? std::stof(xcoordString) : 100.0f);
+          float y = (ycoordString.length() > 1 ? std::stof(ycoordString) : 100.0f);
+          float w = ((enableCustomDim && widthString.length() > 1) ? std::stof(widthString) : (float)newObj->texture->getWidth());
+          float h = ((enableCustomDim && heightString.length() > 1) ? std::stof(heightString) : (float)newObj->texture->getHeight());
+
+
+          newObj->bounds = {x, y, w, h};
+          newObj->wStretch = w/(float)newObj->texture->getWidth();
+          newObj->hStretch = h/(float)newObj->texture->getHeight();
+
+          objList.push_back(newObj);
         }
       }
       
       //save and exit if click "complete scene"
-      else if(SDL_HasIntersection(&saveHitbox, &mouseRect))
+      else if(SDL_HasIntersectionF(&saveHitbox, &mouseRect))
       {
         saveAndExit();
         break;
@@ -217,8 +261,9 @@ void logicSideBar(Component<BasicNode*>* host)
         nodeString += wstring;
 
       nodeString = nodeString.substr(0,12);
-      host->parent->textureMap["nodeText"]->loadFromText(nodeString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["nodeText"]->loadFromText(nodeString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
       break;
+
     case 2:
       if(backspace && textureString.length() > 1)
         textureString.pop_back();
@@ -226,8 +271,9 @@ void logicSideBar(Component<BasicNode*>* host)
         textureString += wstring;
       
       textureString = textureString.substr(0,12);
-      host->parent->textureMap["textureText"]->loadFromText(textureString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["textureText"]->loadFromText(textureString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
       break;
+
     case 3:
       if(backspace && xcoordString.length() > 1)
         xcoordString.pop_back();
@@ -235,8 +281,9 @@ void logicSideBar(Component<BasicNode*>* host)
         xcoordString += wstring;
       
       xcoordString = xcoordString.substr(0,5);
-      host->parent->textureMap["xcoordText"]->loadFromText(xcoordString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["xcoordText"]->loadFromText(xcoordString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
       break;
+
     case 4:
       if(backspace && ycoordString.length() > 1)
         ycoordString.pop_back();
@@ -244,7 +291,29 @@ void logicSideBar(Component<BasicNode*>* host)
        ycoordString += wstring;
   
       ycoordString = ycoordString.substr(0,5);
-      host->parent->textureMap["ycoordText"]->loadFromText(ycoordString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["ycoordText"]->loadFromText(ycoordString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      break;
+
+    case 5:
+
+      if(backspace && heightString.length() > 1)
+        heightString.pop_back();
+      else
+        heightString += wstring;
+  
+      heightString = heightString.substr(0,5);
+      self->textureMap["heightText"]->loadFromText(heightString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      break;
+
+    case 6:
+
+      if(backspace && widthString.length() > 1)
+        widthString.pop_back();
+      else
+        widthString += wstring;
+  
+      widthString = widthString.substr(0,5);
+      self->textureMap["widthText"]->loadFromText(widthString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
       break;
   }
 
@@ -254,10 +323,10 @@ void logicSideBar(Component<BasicNode*>* host)
 
 //-----------------------------------------------------------------------------------------
 
-SDL_Rect camAdjustedBounds(SDL_Rect* rect)
+SDL_FRect camAdjustedBounds(SDL_FRect* rect)
 {
   Camera* cam = game->currentScene->camera;
-  SDL_Rect newRect;
+  SDL_FRect newRect;
   newRect.x = (rect->x - cam->cameraRect.x)*cam->scale;
   newRect.y = (rect->y - cam->cameraRect.y)*cam->scale;
   newRect.w = rect->w * cam->scale;
@@ -266,63 +335,83 @@ SDL_Rect camAdjustedBounds(SDL_Rect* rect)
   return newRect;
 }
 
+placedObject* returnSelectedObject(SDL_FRect* mouseRect)
+{
+  for(auto& rect : objList)
+  {
+    SDL_FRect tmp = camAdjustedBounds(&rect->bounds);
+    if(SDL_HasIntersectionF(&tmp, mouseRect))
+    {
+      return rect;
+    }
+  }
+
+  return nullptr;
+}
+
 void renderObjectPlacer(BasicNode* parent)
 {
   Camera* cam = parent->parentScene->camera;
-  parent->textureMap["main"]->render((parent->var["x"]-cam->cameraRect.x)*cam->scale, (parent->var["y"]-cam->cameraRect.y)*cam->scale, gameWindow->renderer, cam->scale);
+  parent->textureMap["main"]->render((parent->var["x"]-cam->cameraRect.x)*cam->scale, (parent->var["y"]-cam->cameraRect.y)*cam->scale, gameWindow->renderer, cam->scale, cam->scale);
 
-  for(auto rect : objVect)
+  for(auto& rect : objList)
   {
-    rect->texture->render((rect->bounds.x-cam->cameraRect.x)*cam->scale, (rect->bounds.y-cam->cameraRect.y)*cam->scale, gameWindow->renderer, cam->scale);
+    rect->texture->render((rect->bounds.x-cam->cameraRect.x)*cam->scale, (rect->bounds.y-cam->cameraRect.y)*cam->scale, gameWindow->renderer, cam->scale*rect->wStretch, cam->scale*rect->hStretch);
   }
 
 }
 
 void logicObjectPlacer(Component<BasicNode*>* host)
 {
-  Camera* cam = host->parent->parentScene->camera;
   BasicNode* self = host->parent;
+  Camera* cam = self->parentScene->camera;
 
-  SDL_Rect mouseRect = {(mouse.x-cam->cameraRect.x), (mouse.y-cam->cameraRect.y), 1, 1};
-  static SDL_Rect* chosenRect = nullptr;
+  SDL_FRect mouseRect = {(mouse.x-12.5), (mouse.y-12.5), 25, 25};
+  static placedObject* chosenObj = nullptr;
+  static bool moveCamera = false;
 
   for(auto mouseInput : mouseInputs)
   {
     if(mouseInput.type == SDL_MOUSEBUTTONDOWN)
     {
-      //this is probably really expensive but idc
-      for(auto& rect : objVect)
-      {
-        SDL_Rect tmp = camAdjustedBounds(&rect->bounds);
-        if(SDL_HasIntersection(&tmp, &mouseRect))
-        {
-          chosenRect = &rect->bounds;
-          break;
-        }
-      }
 
-      SDL_Rect tmp = {self->var["x"], self->var["y"], self->var["w"], self->var["h"]};
-      if(SDL_HasIntersection(&tmp, &mouseRect))
-      {
-        
-      }
+      chosenObj = returnSelectedObject(&mouseRect);
+
+      SDL_FRect tmp = {0, 0, SCREENW, SCREENH};
+      if(chosenObj == nullptr && SDL_HasIntersectionF(&tmp, &mouseRect))
+        moveCamera = true;
+      else
+        moveCamera = false;
+      
 
     }
+
     if(mouseInput.type == SDL_MOUSEWHEEL)
-    {
-      //gameWindow->globalRenderScale += (mouseInput.wheel.y * 0.25f);
-      host->parent->parentScene->camera->scale += (mouseInput.wheel.y * 0.25f);
+    { //so ugly lmao
+      self->parentScene->camera->scale += (mouseInput.wheel.y * 0.25f);
     }
 
     if(mouseInput.type == SDL_MOUSEBUTTONUP)
-      chosenRect = nullptr;
+    {
+      chosenObj = nullptr;
+      moveCamera = false;
+    }
   }
 
-
-  if(chosenRect != nullptr)
+  if(moveCamera)
   {
-    chosenRect->x += (mouse.x - mouse.prevX)/cam->scale;
-    chosenRect->y += (mouse.y - mouse.prevY)/cam->scale;
+    SDL_FRect* tmp = self->parentScene->getCameraRect();
+    tmp->x -= (mouse.x - mouse.prevX)/cam->scale;
+    tmp->y -= (mouse.y - mouse.prevY)/cam->scale;
+  }
+
+  else if(chosenObj != nullptr)
+  {
+
+    chosenObj->bounds.x += (mouse.x - mouse.prevX)/cam->scale;
+    chosenObj->bounds.y += (mouse.y - mouse.prevY)/cam->scale;
+    objList.remove(chosenObj);
+    objList.push_back(chosenObj);
   }
 
 
@@ -356,22 +445,38 @@ Scene* exampleScene()
   sideBar->textureMap["nodeText"] = new AdamTexture;
   sideBar->textureMap["nodeText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
   sideBar->var["ntextX"] = 150+SCREENW;
-  sideBar->var["ntextY"] = 9;
+  sideBar->var["ntextY"] = 10;
 
   sideBar->textureMap["textureText"] = new AdamTexture;
   sideBar->textureMap["textureText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
   sideBar->var["ttextX"] = 150+SCREENW;
-  sideBar->var["ttextY"] = 29;
+  sideBar->var["ttextY"] = 41;
 
   sideBar->textureMap["xcoordText"] = new AdamTexture;
   sideBar->textureMap["xcoordText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
   sideBar->var["xtextX"] = 150+SCREENW;
-  sideBar->var["xtextY"] = 51;
+  sideBar->var["xtextY"] = 77;
 
   sideBar->textureMap["ycoordText"] = new AdamTexture;
   sideBar->textureMap["ycoordText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
   sideBar->var["ytextX"] = 150+SCREENW;
-  sideBar->var["ytextY"] = 75;
+  sideBar->var["ytextY"] = 116;
+
+  sideBar->textureMap["heightText"] = new AdamTexture;
+  sideBar->textureMap["heightText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+  sideBar->var["htextX"] = 150+SCREENW;
+  sideBar->var["htextY"] = 154;
+  
+  sideBar->textureMap["widthText"] = new AdamTexture;
+  sideBar->textureMap["widthText"]->loadFromText(" ", {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+  sideBar->var["wtextX"] = 150+SCREENW;
+  sideBar->var["wtextY"] = 195;
+
+  sideBar->textureMap["heightwidth"] = new AdamTexture;
+  sideBar->textureMap["heightwidth"]->loadFromFile("assets/hw.png", gameWindow->renderer);
+  sideBar->textureMap["heightwidth"]->setAlphaLevel(0);
+  sideBar->var["hwtextX"] = 14+SCREENW;
+  sideBar->var["hwtextY"] = 157;
 
   sideBar->addComponent("sideBar", logicSideBar);
   newScene->sceneNodes.push_back(sideBar);

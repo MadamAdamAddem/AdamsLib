@@ -61,12 +61,12 @@ class Camera
 {
 public:
   Camera();
-  Camera(int x, int y, int w, int h);
+  Camera(float x, float y, float w, float h);
   ~Camera();
 
 
   float scale;
-  SDL_Rect cameraRect;
+  SDL_FRect cameraRect;
 };
 
 
@@ -74,13 +74,13 @@ class Scene
 {
 public:
   Scene();
-  Scene(int x, int y, int w, int h);
+  Scene(float x, float y, float w, float h);
   ~Scene();
 
   void performLogic();
   void render();
-  void setCamera(int x, int y, int w, int h);
-  SDL_Rect* getCamera() {return &camera->cameraRect;}
+  void setCamera(float x, float y, float w, float h);
+  SDL_FRect* getCameraRect() {return &camera->cameraRect;}
 
   std::vector<SceneNode*> sceneNodes;
   Camera* camera;
