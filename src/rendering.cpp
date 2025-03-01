@@ -287,6 +287,7 @@ void aSDL_Close()
 
   SDL_Quit();
   IMG_Quit();
+  TTF_Quit();
 }
 
 

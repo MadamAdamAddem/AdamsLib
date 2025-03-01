@@ -12,6 +12,7 @@ typedef struct placedObject
   SDL_FRect bounds;
   float wStretch = 1;
   float hStretch = 1;
+  bool customDim = false;
   std::string objName;
   std::string textureName;
   AdamTexture* texture;
@@ -21,7 +22,10 @@ typedef struct placedObject
 }placedObject;
 
 
+
 std::list<placedObject*> objList;
+static placedObject* selectedObj = nullptr;
+static bool isHoldingObj = false;
 
 void saveAndExit()
 {
@@ -30,7 +34,7 @@ void saveAndExit()
   fprintf(fp, "#include \"src/headers/AdamLib.hpp\"\n\n\n");
 
   //stores unique obj names
-  std::map<std::string, int> objholder; 
+  std::unordered_map<std::string, int> objholder; 
   for(auto object : objList)
   {
     std::string objName = object->objName;
@@ -113,7 +117,7 @@ void logicSideBar(Component<BasicNode*>* host)
   static std::string heightString = " ";
   static std::string widthString = " ";
 
-  static int currentString = 0;
+  static int updateString = 0;
   static bool enableCustomDim = false;
 
   SDL_FRect mouseRect = {mouse.x-5, mouse.y-5, 10, 10};
@@ -122,15 +126,47 @@ void logicSideBar(Component<BasicNode*>* host)
   std::string wstring = "";
   bool backspace = false;
   bool validTextInput = false;
- 
 
+
+  #define  NOUPDATE 0
+  #define  UPDATENODE 1
+  #define  UPDATETEXTURE 2
+  #define  UPDATEXCOORD 3
+  #define  UPDATEYCOORD 4
+  #define  UPDATEHEIGHT 5
+  #define  UPDATEWIDTH 6
+  #define  UPDATEALL 7
+
+  static placedObject* lastObj = nullptr;
+  if(selectedObj != nullptr)
+  {
+    enableCustomDim = selectedObj->customDim;
+    if(selectedObj != lastObj)
+    {
+      self->textureMap["heightwidth"]->setAlphaLevel(255*enableCustomDim);
+
+      self->textureMap["nodeText"]->loadFromText(selectedObj->objName, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["textureText"]->loadFromText(selectedObj->textureName, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["xcoordText"]->loadFromText(std::to_string((int)selectedObj->bounds.x), {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["ycoordText"]->loadFromText(std::to_string((int)selectedObj->bounds.y), {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["heightText"]->loadFromText(std::to_string((int)selectedObj->bounds.h), {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["widthText"]->loadFromText(std::to_string((int)selectedObj->bounds.w), {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["heightText"]->setAlphaLevel(255*enableCustomDim);
+      self->textureMap["widthText"]->setAlphaLevel(255*enableCustomDim);
+
+      lastObj = selectedObj;
+    }
+  }
+  else
+    lastObj = nullptr;
+    
 
   //take keyboard input
-  for(auto keyInput : keyboardInputs)
+  for(auto& keyInput : keyboardInputs)
   {
     if(keyInput.type == SDL_TEXTINPUT)
     {
-      if(currentString < 3)
+      if(updateString < 3)
       {
         wstring += keyInput.text.text;
         validTextInput = true;
@@ -153,9 +189,9 @@ void logicSideBar(Component<BasicNode*>* host)
         break;
       }
 
-      else if(keyInput.key.keysym.sym == SDLK_TAB && currentString != 0)
+      else if(keyInput.key.keysym.sym == SDLK_TAB && updateString != 0)
       {
-        currentString = (currentString + 1) % ((enableCustomDim*2)+5);
+        updateString = (updateString + 1) % ((enableCustomDim*2)+5);
         validTextInput = true;
         break;
       }
@@ -164,39 +200,42 @@ void logicSideBar(Component<BasicNode*>* host)
   }
 
   //take mouse input
-  for(auto mouseInput : mouseInputs)
+  for(auto& mouseInput : mouseInputs)
   {
     if(mouseInput.type == SDL_MOUSEBUTTONDOWN)
     {
+      if(mouseInput.button.button != SDL_BUTTON_LEFT)
+        continue;
+
       if(SDL_HasIntersectionF(&nodeHitbox, &mouseRect))
       {
         takeTextInput = true;
-        currentString = 1;
+        updateString = UPDATENODE;
       }
       else if(SDL_HasIntersectionF(&textureHitbox, &mouseRect))
       {
         takeTextInput = true;
-        currentString = 2;
+        updateString = UPDATETEXTURE;
       }
       else if(SDL_HasIntersectionF(&xcoordHitbox, &mouseRect))
       {
         takeTextInput = true;
-        currentString = 3;
+        updateString = UPDATEXCOORD;
       }
       else if(SDL_HasIntersectionF(&ycoordHitbox, &mouseRect))
       {
         takeTextInput = true;
-        currentString = 4;
+        updateString = UPDATEYCOORD;
       }
       else if(enableCustomDim && SDL_HasIntersectionF(&heightHitbox, &mouseRect))
       {
         takeTextInput = true;
-        currentString = 5;
+        updateString = UPDATEHEIGHT;
       }
       else if(enableCustomDim && SDL_HasIntersectionF(&widthHitbox, &mouseRect))
       {
         takeTextInput = true;
-        currentString = 6;
+        updateString = UPDATEWIDTH;
       }
       else if(SDL_HasIntersectionF(&setCustomDimHitbox, &mouseRect))
       { 
@@ -204,31 +243,59 @@ void logicSideBar(Component<BasicNode*>* host)
         self->textureMap["heightwidth"]->setAlphaLevel(255*enableCustomDim);
         self->textureMap["heightText"]->setAlphaLevel(255*enableCustomDim);
         self->textureMap["widthText"]->setAlphaLevel(255*enableCustomDim);
+
+        if(selectedObj == nullptr)
+          continue;
+
+        selectedObj->customDim = enableCustomDim;
+        if(enableCustomDim == false)
+        {
+          selectedObj->bounds.w = selectedObj->texture->getWidth();
+          selectedObj->bounds.h = selectedObj->texture->getHeight();
+
+          selectedObj->wStretch = 1;
+          selectedObj->hStretch = 1;
+          updateString = updateString | UPDATEHEIGHT | UPDATEWIDTH;
+        }
+        else
+        {
+          /*std::string tmpWidth = std::to_string((int)selectedObj->bounds.w);
+          std::string tmpHeight = std::to_string((int)selectedObj->bounds.h);
+          self->textureMap["widthText"]->loadFromText(tmpWidth, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+          self->textureMap["heightText"]->loadFromText(tmpHeight, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);*/
+        }
       }
       
-      //load new object with proper attributes
+      //create new object or modify existing w/ attributes
       else if(SDL_HasIntersectionF(&enterHitbox, &mouseRect))
       {
-        if(nodeString.length() > 1 && textureString.length() > 1)
+        if(!(nodeString.length() > 1) || !(textureString.length() > 1))
+          continue;
+
+        placedObject* newObj;
+        if(selectedObj == nullptr)
         {
-          placedObject* newObj = new placedObject;
+          newObj = new placedObject;
           newObj->texture = new AdamTexture;
-          newObj->objName = nodeString.substr(1);
-          newObj->textureName = textureString.substr(1);
-          newObj->texture->loadFromFile("assets/" + newObj->textureName, gameWindow->renderer);
-
-          float x = (xcoordString.length() > 1 ? std::stof(xcoordString) : 100.0f);
-          float y = (ycoordString.length() > 1 ? std::stof(ycoordString) : 100.0f);
-          float w = ((enableCustomDim && widthString.length() > 1) ? std::stof(widthString) : (float)newObj->texture->getWidth());
-          float h = ((enableCustomDim && heightString.length() > 1) ? std::stof(heightString) : (float)newObj->texture->getHeight());
-
-
-          newObj->bounds = {x, y, w, h};
-          newObj->wStretch = w/(float)newObj->texture->getWidth();
-          newObj->hStretch = h/(float)newObj->texture->getHeight();
-
           objList.push_back(newObj);
+          selectedObj = newObj;
         }
+        else
+          newObj = selectedObj;
+
+        newObj->objName = nodeString.substr(1);
+        newObj->textureName = textureString.substr(1);
+        newObj->texture->loadFromFile("assets/" + newObj->textureName, gameWindow->renderer);
+        float x = (xcoordString.length() > 1 ? std::stof(xcoordString) : 100.0f);
+        float y = (ycoordString.length() > 1 ? std::stof(ycoordString) : 100.0f);
+        float w = ((enableCustomDim && widthString.length() > 1) ? std::stof(widthString) : (float)newObj->texture->getWidth());
+        float h = ((enableCustomDim && heightString.length() > 1) ? std::stof(heightString) : (float)newObj->texture->getHeight());
+
+
+        newObj->bounds = {x, y, w, h};
+        newObj->customDim = enableCustomDim;
+        newObj->wStretch = w/(float)newObj->texture->getWidth();
+        newObj->hStretch = h/(float)newObj->texture->getHeight();
       }
       
       //save and exit if click "complete scene"
@@ -240,9 +307,19 @@ void logicSideBar(Component<BasicNode*>* host)
       else
       {
         takeTextInput = false;
-        currentString = 0;
+        updateString = NOUPDATE;
       }
 
+    }
+
+    if(mouseInput.type == SDL_MOUSEBUTTONUP)
+    {
+      if(mouseInput.button.button != SDL_BUTTON_LEFT || selectedObj == nullptr)
+        continue;
+
+      self->textureMap["xcoordText"]->loadFromText(std::to_string((int)selectedObj->bounds.x), {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      self->textureMap["ycoordText"]->loadFromText(std::to_string((int)selectedObj->bounds.y), {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+      
     }
   }
 
@@ -250,7 +327,7 @@ void logicSideBar(Component<BasicNode*>* host)
     return;
 
   //update string textures when change is made
-  switch(currentString)
+  switch(updateString)
   {
     case 0:
       break;
@@ -316,9 +393,7 @@ void logicSideBar(Component<BasicNode*>* host)
       self->textureMap["widthText"]->loadFromText(widthString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
       break;
   }
-
-
-
+  
 }
 
 //-----------------------------------------------------------------------------------------
@@ -366,24 +441,37 @@ void logicObjectPlacer(Component<BasicNode*>* host)
   BasicNode* self = host->parent;
   Camera* cam = self->parentScene->camera;
 
-  SDL_FRect mouseRect = {(mouse.x-12.5), (mouse.y-12.5), 25, 25};
-  static placedObject* chosenObj = nullptr;
+  SDL_FRect mouseRect = {(mouse.x-5), (mouse.y-5), 10, 10};
   static bool moveCamera = false;
 
-  for(auto mouseInput : mouseInputs)
+  for(auto& mouseInput : mouseInputs)
   {
     if(mouseInput.type == SDL_MOUSEBUTTONDOWN)
     {
-
-      chosenObj = returnSelectedObject(&mouseRect);
+      if(mouseInput.button.button == SDL_BUTTON_RIGHT)
+        continue;
 
       SDL_FRect tmp = {0, 0, SCREENW, SCREENH};
-      if(chosenObj == nullptr && SDL_HasIntersectionF(&tmp, &mouseRect))
-        moveCamera = true;
-      else
-        moveCamera = false;
+      if(mouseInput.button.button == SDL_BUTTON_LEFT)
+      {
+        if(SDL_HasIntersectionF(&tmp, &mouseRect))
+        {
+          selectedObj = returnSelectedObject(&mouseRect);
+          moveCamera = false;
+          isHoldingObj = true;
+        }
+        continue;
+      }
       
 
+      
+      if(SDL_HasIntersectionF(&tmp, &mouseRect))
+      {
+        moveCamera = true;
+        isHoldingObj = false;
+        selectedObj = nullptr;
+      }
+        
     }
 
     if(mouseInput.type == SDL_MOUSEWHEEL)
@@ -393,10 +481,30 @@ void logicObjectPlacer(Component<BasicNode*>* host)
 
     if(mouseInput.type == SDL_MOUSEBUTTONUP)
     {
-      chosenObj = nullptr;
-      moveCamera = false;
+      switch(mouseInput.button.button)
+      {
+        case SDL_BUTTON_LEFT:
+          isHoldingObj = false;
+        case SDL_BUTTON_MIDDLE:
+          moveCamera = false;
+      }
     }
   }
+  
+  for(auto& keyInput : keyboardInputs)
+  {
+    if(keyInput.type == SDL_KEYDOWN)
+    {
+      if((keyInput.key.keysym.sym == SDLK_DELETE || keyInput.key.keysym.sym == SDLK_BACKSPACE) && selectedObj != nullptr)
+      {
+        objList.remove(selectedObj);
+        delete selectedObj;
+        selectedObj = nullptr;
+      }
+    }
+  }
+
+
 
   if(moveCamera)
   {
@@ -405,15 +513,13 @@ void logicObjectPlacer(Component<BasicNode*>* host)
     tmp->y -= (mouse.y - mouse.prevY)/cam->scale;
   }
 
-  else if(chosenObj != nullptr)
+  else if(selectedObj != nullptr && isHoldingObj)
   {
-
-    chosenObj->bounds.x += (mouse.x - mouse.prevX)/cam->scale;
-    chosenObj->bounds.y += (mouse.y - mouse.prevY)/cam->scale;
-    objList.remove(chosenObj);
-    objList.push_back(chosenObj);
+    selectedObj->bounds.x += (mouse.x - mouse.prevX)/cam->scale;
+    selectedObj->bounds.y += (mouse.y - mouse.prevY)/cam->scale;
+    objList.remove(selectedObj);
+    objList.push_back(selectedObj);
   }
-
 
 
 }
@@ -425,7 +531,7 @@ Scene* exampleScene()
   Scene* newScene = new Scene(0, 0, 1580, 720);
   newScene->setCamera(0,0,1580, 720);
   
-
+//objectPlacer
 {
   BasicNode* objectPlacer = new BasicNode(newScene, renderObjectPlacer);
   objectPlacer->setPos(0,0);

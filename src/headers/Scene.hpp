@@ -49,11 +49,11 @@ public:
 
   void (*renderfuncptr)(BasicNode* parent);
 
-  std::map<std::string, Component<BasicNode*>*> componentMap;
+  std::unordered_map<std::string, Component<BasicNode*>*> componentMap;
 
   //"main" is main texture, already initialized. call textureMap["main"]->replaceTexture or textureMap["main"]->loadFromFile to change.
-  std::map<std::string, AdamTexture*> textureMap;
-  std::map<std::string, float> var;
+  std::unordered_map<std::string, AdamTexture*> textureMap;
+  std::unordered_map<std::string, float> var;
 
 };
 
