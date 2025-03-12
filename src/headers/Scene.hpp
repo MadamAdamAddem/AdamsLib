@@ -1,7 +1,9 @@
 #pragma once
 #include "Rendering.hpp"
+#include <tmxlite/Map.hpp>
+#include <tmxlite/TileLayer.hpp>
 
-Scene* exampleScene();
+Scene* newScene();
 
 class Scene;
 
@@ -57,6 +59,22 @@ public:
 
 };
 
+
+
+class TileNode : public SceneNode
+{
+public:
+  TileNode(Scene* sceneParent);
+  ~TileNode();
+
+  void render();
+  void performLogic();
+
+  tmx::TileLayer* layer;
+
+};
+
+
 class Camera
 {
 public:
@@ -74,7 +92,7 @@ class Scene
 {
 public:
   Scene();
-  Scene(float x, float y, float w, float h);
+  Scene(float x, float y, float w, float h, int tSize, int tammW, int tammH);
   ~Scene();
 
   void performLogic();
@@ -85,8 +103,16 @@ public:
   std::vector<SceneNode*> sceneNodes;
   Camera* camera;
 
+
   int width;
   int height;
+
+  int tileSize;
+  int ammTilesWide;
+  int ammTilesHigh;
+
+  std::vector<std::pair<tmx::Tileset*, AdamTexture*>> tileSets;
+
 };
 
 extern std::vector<SDL_Event> keyboardInputs;

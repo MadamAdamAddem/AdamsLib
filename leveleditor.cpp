@@ -21,8 +21,6 @@ typedef struct placedObject
 
 }placedObject;
 
-
-
 std::list<placedObject*> objList;
 static placedObject* selectedObj = nullptr;
 static bool isHoldingObj = false;
@@ -329,69 +327,67 @@ void logicSideBar(Component<BasicNode*>* host)
   //update string textures when change is made
   switch(updateString)
   {
-    case 0:
-      break;
-    case 1:
-      if(backspace && nodeString.length() > 1)
-        nodeString.pop_back();
-      else
-        nodeString += wstring;
+  case NOUPDATE:
+    break;
+  case UPDATENODE:
+    if(backspace && nodeString.length() > 1)
+      nodeString.pop_back();
+    else
+      nodeString += wstring;
 
-      nodeString = nodeString.substr(0,12);
-      self->textureMap["nodeText"]->loadFromText(nodeString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-      break;
+    nodeString = nodeString.substr(0,12);
+    self->textureMap["nodeText"]->loadFromText(nodeString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+    break;
 
-    case 2:
-      if(backspace && textureString.length() > 1)
-        textureString.pop_back();
-      else
-        textureString += wstring;
-      
-      textureString = textureString.substr(0,12);
-      self->textureMap["textureText"]->loadFromText(textureString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-      break;
+  case UPDATETEXTURE:
+    if(backspace && textureString.length() > 1)
+      textureString.pop_back();
+    else
+      textureString += wstring;
+    
+    textureString = textureString.substr(0,12);
+    self->textureMap["textureText"]->loadFromText(textureString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+    break;
 
-    case 3:
-      if(backspace && xcoordString.length() > 1)
-        xcoordString.pop_back();
-      else
-        xcoordString += wstring;
-      
-      xcoordString = xcoordString.substr(0,5);
-      self->textureMap["xcoordText"]->loadFromText(xcoordString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-      break;
+  case UPDATEXCOORD:
+    if(backspace && xcoordString.length() > 1)
+      xcoordString.pop_back();
+    else
+      xcoordString += wstring;
+    
+    xcoordString = xcoordString.substr(0,5);
+    self->textureMap["xcoordText"]->loadFromText(xcoordString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+    break;
 
-    case 4:
-      if(backspace && ycoordString.length() > 1)
-        ycoordString.pop_back();
-      else
-       ycoordString += wstring;
-  
-      ycoordString = ycoordString.substr(0,5);
-      self->textureMap["ycoordText"]->loadFromText(ycoordString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-      break;
+  case UPDATEYCOORD:
+    if(backspace && ycoordString.length() > 1)
+      ycoordString.pop_back();
+    else
+      ycoordString += wstring;
 
-    case 5:
+    ycoordString = ycoordString.substr(0,5);
+    self->textureMap["ycoordText"]->loadFromText(ycoordString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+    break;
 
-      if(backspace && heightString.length() > 1)
-        heightString.pop_back();
-      else
-        heightString += wstring;
-  
-      heightString = heightString.substr(0,5);
-      self->textureMap["heightText"]->loadFromText(heightString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-      break;
+  case UPDATEHEIGHT:
+    if(backspace && heightString.length() > 1)
+      heightString.pop_back();
+    else
+      heightString += wstring;
 
-    case 6:
+    heightString = heightString.substr(0,5);
+    self->textureMap["heightText"]->loadFromText(heightString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+    break;
 
-      if(backspace && widthString.length() > 1)
-        widthString.pop_back();
-      else
-        widthString += wstring;
-  
-      widthString = widthString.substr(0,5);
-      self->textureMap["widthText"]->loadFromText(widthString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
-      break;
+  case UPDATEWIDTH:
+    if(backspace && widthString.length() > 1)
+      widthString.pop_back();
+    else
+      widthString += wstring;
+
+    widthString = widthString.substr(0,5);
+    self->textureMap["widthText"]->loadFromText(widthString, {0, 0, 0, 0}, gameWindow->renderer, gameWindow->font);
+    break;
   }
   
 }
@@ -429,9 +425,11 @@ void renderObjectPlacer(BasicNode* parent)
   Camera* cam = parent->parentScene->camera;
   parent->textureMap["main"]->render((parent->var["x"]-cam->cameraRect.x)*cam->scale, (parent->var["y"]-cam->cameraRect.y)*cam->scale, gameWindow->renderer, cam->scale, cam->scale);
 
+  //std::cout << "--------" << std::endl;
   for(auto& rect : objList)
   {
     rect->texture->render((rect->bounds.x-cam->cameraRect.x)*cam->scale, (rect->bounds.y-cam->cameraRect.y)*cam->scale, gameWindow->renderer, cam->scale*rect->wStretch, cam->scale*rect->hStretch);
+    //std::cout << rect->objName << std::endl;
   }
 
 }

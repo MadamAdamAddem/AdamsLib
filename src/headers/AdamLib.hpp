@@ -7,4 +7,6 @@
 
 void AdamInit();
 
+void AdamInit(const int screenW, const int screenH);
+
 void AdamClose();

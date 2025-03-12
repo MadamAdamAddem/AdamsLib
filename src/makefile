@@ -4,13 +4,15 @@ else
 	UNAME := $(shell uname)
 endif
 
-files := adlibinit.cpp examplegame.cpp game.cpp scene.cpp inputs.cpp rendering.cpp main.cpp 
+
+
+files := adlibinit.cpp levelreader.cpp game.cpp scene.cpp inputs.cpp rendering.cpp main.cpp 
 obj_dir := obj
 compiled := $(files:%.cpp=$(obj_dir)/%.o)
 CXX := g++
 
 ifeq ($(UNAME), Linux)
-CXXFLAGS := -w -O2 -lSDL2 -lSDL2_image -lSDL2_ttf
+CXXFLAGS := -w -O2 -lSDL2 -lSDL2_image -lSDL2_ttf -ltmxlite
 endif
 
 ifeq ($(UNAME), Windows)
