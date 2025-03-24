@@ -16,7 +16,7 @@ CXXFLAGS := -w -O2 -lSDL2 -lSDL2_image -lSDL2_ttf -ltmxlite
 endif
 
 ifeq ($(UNAME), Windows)
-CXXFLAGS := -static-libgcc -static-libstdc++ -mwindows -w -O2 -lSDL2 -lSDL2_image -lSDL2_ttf
+CXXFLAGS := -static-libgcc -static-libstdc++ -mwindows -w -O2 -lSDL2 -lSDL2_image -lSDL2_ttf -ltmxlite
 endif
 
 

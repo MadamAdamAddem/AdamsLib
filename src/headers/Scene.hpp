@@ -53,26 +53,12 @@ public:
 
   std::unordered_map<std::string, Component<BasicNode*>*> componentMap;
 
-  //"main" is main texture, already initialized. call textureMap["main"]->replaceTexture or textureMap["main"]->loadFromFile to change.
   std::unordered_map<std::string, AdamTexture*> textureMap;
   std::unordered_map<std::string, float> var;
 
 };
 
 
-
-class TileNode : public SceneNode
-{
-public:
-  TileNode(Scene* sceneParent);
-  ~TileNode();
-
-  void render();
-  void performLogic();
-
-  tmx::TileLayer* layer;
-
-};
 
 
 class Camera
@@ -99,6 +85,7 @@ public:
   void render();
   void setCamera(float x, float y, float w, float h);
   SDL_FRect* getCameraRect() {return &camera->cameraRect;}
+  SDL_FRect  checkIfTileCollision(SDL_FRect* const obj);
 
   std::vector<SceneNode*> sceneNodes;
   Camera* camera;
@@ -112,6 +99,7 @@ public:
   int ammTilesHigh;
 
   std::vector<std::pair<tmx::Tileset*, AdamTexture*>> tileSets;
+  std::vector<tmx::TileLayer*> tileLayers;
 
 };
 

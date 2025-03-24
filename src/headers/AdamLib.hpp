@@ -5,6 +5,8 @@
 #include "Scene.hpp"
 
 
+
+
 void AdamInit();
 
 void AdamInit(const int screenW, const int screenH);

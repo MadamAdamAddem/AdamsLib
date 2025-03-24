@@ -1,4 +1,6 @@
 #include "headers/AdamLib.hpp"
+#include "headers/Quadtree.hpp"
+
 
 #define SCREENW 1280
 #define SCREENH 720
@@ -26,12 +28,7 @@ Scene* newScene()
   Scene* newScene = new Scene(0, 0, SCREENW, SCREENH, map.getTileSize().x, map.getTileCount().x, map.getTileCount().y);
   newScene->setCamera(0,0,SCREENW, SCREENH);
 
-  //xml reader
-  TileNode* tileNode = new TileNode(newScene);
-  newScene->sceneNodes.push_back(tileNode);
-
-
-
+  
   const auto& layers = map.getLayers();
   const auto& tileSets = map.getTilesets();
   int vSize = tileSets.size();
@@ -58,8 +55,8 @@ Scene* newScene()
     }
     else if(layer->getType() == tmx::Layer::Type::Tile)
     {
-      tileNode->layer = new tmx::TileLayer(layer->getLayerAs<tmx::TileLayer>());
-      for(const auto tmp2 : tileNode->layer->getTiles())
+      newScene->tileLayers.push_back(new tmx::TileLayer(layer->getLayerAs<tmx::TileLayer>()));
+      for(const auto tmp2 : newScene->tileLayers)
       {
         //std::cout << tmp2.ID << std::endl;
       }
@@ -67,7 +64,7 @@ Scene* newScene()
   }
 
 
-
+  QuadTree<int> tree(2, 640, 360);
 
 
 
