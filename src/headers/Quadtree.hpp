@@ -6,6 +6,9 @@
 #include <SDL2/SDL.h>
 
 
+//Please Note: This shit is ass. Use this if you think the cache is a government conspiracy.
+
+
 template<typename T>
 class QuadTreeNode
 {
