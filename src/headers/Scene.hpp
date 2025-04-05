@@ -1,5 +1,6 @@
 #pragma once
 #include "Rendering.hpp"
+#include "Grid.hpp"
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 
@@ -85,7 +86,9 @@ public:
   void render();
   void setCamera(float x, float y, float w, float h);
   SDL_FRect* getCameraRect() {return &camera->cameraRect;}
-  SDL_FRect  checkIfTileCollision(SDL_FRect* const obj);
+
+  //wtf is this
+  SDL_FRect checkIfTileCollision(SDL_FRect* const obj);
 
   std::vector<SceneNode*> sceneNodes;
   Camera* camera;
@@ -98,6 +101,8 @@ public:
   int ammTilesWide;
   int ammTilesHigh;
 
+  ObjGrid<tmx::TileLayer::Tile> tileGrid;
+  ObjGrid<SceneNode> objectGrid;
   std::vector<std::pair<tmx::Tileset*, AdamTexture*>> tileSets;
   std::vector<tmx::TileLayer*> tileLayers;
 

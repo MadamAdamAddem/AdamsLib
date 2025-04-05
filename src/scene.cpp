@@ -12,6 +12,8 @@ Scene::Scene(float x, float y, float w, float h, int tSize, int tammW, int tammH
   tileLayers.reserve(3);
   width = w; height = h;
   camera = new Camera(x, y, gameWindow->screenW, gameWindow->screenH);
+  tileGrid.initialize(w, h);
+  objectGrid.initialize(w, h);
 }
 
 //implement
@@ -34,6 +36,7 @@ void Scene::render()
     tileSets[0].second->render(clip.x, clip.y, gameWindow->renderer, 1, 1, &clip);
   }
 
+
   for(auto node : sceneNodes)
   {
     node->render();
@@ -53,6 +56,7 @@ void Scene::setCamera(float x, float y, float w, float h)
   camera->cameraRect = {x, y, w, h};
 }
 
+//wtf
 SDL_FRect Scene::checkIfTileCollision(SDL_FRect* const obj)
 {
   return {0,0,0,0};

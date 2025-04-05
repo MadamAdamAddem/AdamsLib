@@ -17,6 +17,9 @@ AdamTexture::AdamTexture()
 
 AdamTexture::AdamTexture(const std::string path, SDL_Renderer* renderer)
 {
+  texture = nullptr;
+  tWidth = 0;
+  tHeight = 0;
   loadFromFile(path, renderer);
 }
 

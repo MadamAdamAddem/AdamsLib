@@ -1,9 +1,12 @@
 To Do:
+  
+  Sprite System
+  Sound
+  Collision System
   Add animation support
+  Delta-Time
   Implement controller inputs
 
-Polish:
-  Make game run exactly once every 16ms
 
 Req:
   tmxlite
