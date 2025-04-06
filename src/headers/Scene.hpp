@@ -78,7 +78,6 @@ public:
 class Scene
 {
 public:
-  Scene();
   Scene(float x, float y, float w, float h, int tSize, int tammW, int tammH);
   ~Scene();
 
@@ -96,10 +95,6 @@ public:
 
   int width;
   int height;
-
-  int tileSize;
-  int ammTilesWide;
-  int ammTilesHigh;
 
   ObjGrid<tmx::TileLayer::Tile> tileGrid;
   ObjGrid<SceneNode> objectGrid;

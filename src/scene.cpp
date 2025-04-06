@@ -1,18 +1,16 @@
 #include "headers/Scene.hpp"
+#include "headers/Grid.hpp"
 
 
-Scene::Scene() : Scene(0, 0, 1280, 720, 0, 0, 0)
-{
-
-}
-
-Scene::Scene(float x, float y, float w, float h, int tSize, int tammW, int tammH)
+Scene::Scene(float x, float y, float w, float h, int tileDim, int ammountTilesWide, int ammountTilesTall)
 {
   tileSets.reserve(3);
   tileLayers.reserve(3);
+
   width = w; height = h;
+
   camera = new Camera(x, y, gameWindow->screenW, gameWindow->screenH);
-  tileGrid.initialize(w, h);
+  tileGrid.initialize(w, h, tileDim, tileDim);
   objectGrid.initialize(w, h);
 }
 
@@ -29,12 +27,28 @@ Scene::~Scene()
 
 void Scene::render()
 {
+  
+  std::forward_list<tmx::TileLayer::Tile*> tileList = tileGrid.getObjsInArea({0,0, 750, 500});
 
+  std::cout << tileList.empty() << std::endl;
+  asda
+
+  for(const auto tile : tileList)
+  {
+    //printf("TILE ID %d\n", tile->ID);
+  }
+
+  /*
   for(int i=1; i<=16; ++i)
   {
+
+
+
+    /*
     SDL_Rect clip = {tileSets[0].first->getTile(i)->imagePosition.x, tileSets[0].first->getTile(i)->imagePosition.y, 25, 25};
     tileSets[0].second->render(clip.x, clip.y, gameWindow->renderer, 1, 1, &clip);
-  }
+    
+  }*/
 
 
   for(auto node : sceneNodes)

@@ -12,7 +12,7 @@ class GridNode
 {
 public:
 
-  std::forward_list<T> listObjs;
+  std::forward_list<T*> listObjs;
 };
 
 
@@ -56,7 +56,7 @@ public:
   }
 
 
-  bool placeObj(const T* objPtr, const SDL_Rect bounds)
+  bool placeObj(T* objPtr, const SDL_Rect bounds)
   {
     SDL_Rect tmp = {0,0, width, height};
     if(objPtr == nullptr || !SDL_HasIntersection(&tmp, &bounds))
@@ -80,7 +80,7 @@ public:
         continue;
 
         //std::cout << "Placing Object at Index: " << i << " " << j << std::endl;
-        arrNodes[i][j].listObjs.push_front(*objPtr);
+        arrNodes[i][j].listObjs.push_front(objPtr);
       }
     }
     
@@ -89,7 +89,7 @@ public:
   }
 
   //unoptimized if the compiler isn't doing return value optimization
-  std::forward_list<T> getObjsInArea(SDL_Rect bounds)
+  std::forward_list<T*> getObjsInArea(SDL_Rect bounds)
   {
     SDL_Rect tmp = {0,0, width, height};
 

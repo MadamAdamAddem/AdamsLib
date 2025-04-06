@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 
-#define SCREENW 1280
-#define SCREENH 720
+#define SCREENW 750
+#define SCREENH 500
 
 
 void renderXmlReader(BasicNode* parent)
@@ -27,7 +27,7 @@ Scene* newScene()
     return nullptr;
 
 
-  Scene* newScene = new Scene(0, 0, SCREENW, SCREENH, map.getTileSize().x, map.getTileCount().x, map.getTileCount().y);
+  Scene* newScene = new Scene(0, 0, SCREENW, SCREENH, 25, 0, 0);
   newScene->setCamera(0,0,SCREENW, SCREENH);
   newScene->tileGrid.placeObj(nullptr, {21, 5, 15, 10});
 
@@ -59,9 +59,16 @@ Scene* newScene()
     {
       newScene->tileLayers.push_back(new tmx::TileLayer(layer->getLayerAs<tmx::TileLayer>()));
       int i = 0;
-      for(const auto tmp2 : newScene->tileLayers[0]->getTiles())
+      for(auto tmp2 : newScene->tileLayers[0]->getTiles())
       {
-        newScene->tileGrid.placeObj(&tmp2, {i*});
+        if(tmp2.ID)
+        {
+          SDL_Rect tmp = {(i%newScene->tileGrid.ammNodeWidth)*newScene->tileGrid.widthNode, (i/newScene->tileGrid.ammNodeWidth)*newScene->tileGrid.heightNode, newScene->tileGrid.widthNode, newScene->tileGrid.heightNode};
+          newScene->tileGrid.placeObj(&tmp2, tmp);
+          //printf("TILE ID %d\n", tmp2.ID);
+        }
+
+        ++i;
       }
     }
   }
