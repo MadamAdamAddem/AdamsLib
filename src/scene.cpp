@@ -27,28 +27,38 @@ Scene::~Scene()
 
 void Scene::render()
 {
+
   
-  std::forward_list<tmx::TileLayer::Tile*> tileList = tileGrid.getObjsInArea({0,0, 750, 500});
-
-  std::cout << tileList.empty() << std::endl;
-  asda
-
-  for(const auto tile : tileList)
+  for(auto tileLayer : tileLayers)
   {
-    //printf("TILE ID %d\n", tile->ID);
+    //lol
+    int i = -1;
+    for(auto tile : tileLayer.tiles)
+    {
+      ++i;
+      if(!tile.ID)
+        continue;
+
+      SDL_Rect clip;
+      for(auto tileSet : tileSets)
+      {
+        if(tileSet.hasTile(tile.ID))
+        {
+          clip = tileSet.getTileRect(tile.ID);
+          int adj = i*clip.w;
+          tileSet.tileSetTexture.render((adj)%width, (i*clip.h)/height, gameWindow->renderer, 1, 1, &clip);
+          std::cout << (adj)%width << " " << (adj/width)*clip.h << std::endl;
+          break;
+        }
+      }
+
+
+    }
+
+    
   }
 
-  /*
-  for(int i=1; i<=16; ++i)
-  {
-
-
-
-    /*
-    SDL_Rect clip = {tileSets[0].first->getTile(i)->imagePosition.x, tileSets[0].first->getTile(i)->imagePosition.y, 25, 25};
-    tileSets[0].second->render(clip.x, clip.y, gameWindow->renderer, 1, 1, &clip);
-    
-  }*/
+  exit(1);
 
 
   for(auto node : sceneNodes)

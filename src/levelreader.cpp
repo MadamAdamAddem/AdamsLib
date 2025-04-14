@@ -1,5 +1,6 @@
 #include "headers/AdamLib.hpp"
 #include "headers/Grid.hpp"
+#include "headers/Tiles.hpp"
 #include <stdio.h>
 #include <stdint.h>
 
@@ -29,19 +30,17 @@ Scene* newScene()
 
   Scene* newScene = new Scene(0, 0, SCREENW, SCREENH, 25, 0, 0);
   newScene->setCamera(0,0,SCREENW, SCREENH);
-  newScene->tileGrid.placeObj(nullptr, {21, 5, 15, 10});
 
-  const auto& layers = map.getLayers();
-  const auto& tileSets = map.getTilesets();
-  int ammTileSets = tileSets.size();
-
-  for(int i=0; i<ammTileSets; ++i)
+  int tmp=0;
+  for(auto tSets : map.getTilesets())
   {
-    tmx::Tileset* newTileset = new tmx::Tileset(tileSets[i]);
-    newScene->tileSets[i].first = newTileset;
-    newScene->tileSets[i].second = new AdamTexture(newTileset->getImagePath(), gameWindow->renderer);
+    adamLib::TileSet _tSet = adamLib::convertToAdamTileSet(tSets);
+    newScene->tileSets.push_back(_tSet);
+    newScene->tileSets[tmp].tileSetTexture.loadFromFile(tSets.getImagePath(), gameWindow->renderer);
+    tmp++;
   }
 
+  const auto& layers = map.getLayers();
   for(const auto& layer : layers)
   {
     if(layer->getType() == tmx::Layer::Type::Object)
@@ -57,18 +56,27 @@ Scene* newScene()
     }
     else if(layer->getType() == tmx::Layer::Type::Tile)
     {
-      newScene->tileLayers.push_back(new tmx::TileLayer(layer->getLayerAs<tmx::TileLayer>()));
-      int i = 0;
-      for(auto tmp2 : newScene->tileLayers[0]->getTiles())
+
+      adamLib::TileLayer tLayer = adamLib::convertToAdamTileLayer(layer->getLayerAs<tmx::TileLayer>());
+      
+      newScene->tileLayers.push_back(tLayer);
+
+
+      int i = -1;
+      for(auto& tileLayer : newScene->tileLayers)
       {
-        if(tmp2.ID)
+        for(auto& tile : tileLayer.tiles)
         {
+          ++i;
+          if(!tile.ID)
+            continue;
+
           SDL_Rect tmp = {(i%newScene->tileGrid.ammNodeWidth)*newScene->tileGrid.widthNode, (i/newScene->tileGrid.ammNodeWidth)*newScene->tileGrid.heightNode, newScene->tileGrid.widthNode, newScene->tileGrid.heightNode};
-          newScene->tileGrid.placeObj(&tmp2, tmp);
-          //printf("TILE ID %d\n", tmp2.ID);
+          newScene->tileGrid.placeObj(&tile, tmp);
+          //printf("TILE ID %d\n", tile.ID);
+
         }
 
-        ++i;
       }
     }
   }

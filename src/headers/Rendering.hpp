@@ -69,6 +69,7 @@ public:
 
   int getWidth() {return tWidth;}
   int getHeight() {return tHeight;}
+  bool isLoaded() {return texture != nullptr;}
 
 
 private:

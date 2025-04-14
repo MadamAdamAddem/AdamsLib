@@ -1,12 +1,20 @@
 #pragma once
 #include "Rendering.hpp"
 #include "Grid.hpp"
+#include "Tiles.hpp"
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
+
 
 Scene* newScene();
 
 class Scene;
+
+
+
+
+
+
 
 template<typename ParentNodePtr> class Component
 {
@@ -96,10 +104,10 @@ public:
   int width;
   int height;
 
-  ObjGrid<tmx::TileLayer::Tile> tileGrid;
+  ObjGrid<adamLib::Tile> tileGrid;
   ObjGrid<SceneNode> objectGrid;
-  std::vector<std::pair<tmx::Tileset*, AdamTexture*>> tileSets;
-  std::vector<tmx::TileLayer*> tileLayers;
+  std::vector<adamLib::TileSet> tileSets;
+  std::vector<adamLib::TileLayer> tileLayers;
 
 };
 

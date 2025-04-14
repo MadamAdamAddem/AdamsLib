@@ -121,6 +121,8 @@ public:
       }
     }
 
+    retVal.sort();
+    retVal.unique();
     return retVal;
   }
 
