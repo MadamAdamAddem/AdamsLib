@@ -4,7 +4,6 @@
 
 Scene::Scene(float x, float y, float w, float h, int tileDim, int ammountTilesWide, int ammountTilesTall)
 {
-  tileSets.reserve(3);
   tileLayers.reserve(3);
 
   width = w; height = h;
@@ -27,39 +26,6 @@ Scene::~Scene()
 
 void Scene::render()
 {
-
-  
-  for(auto tileLayer : tileLayers)
-  {
-    //lol
-    int i = -1;
-    for(auto tile : tileLayer.tiles)
-    {
-      ++i;
-      if(!tile.ID)
-        continue;
-
-      SDL_Rect clip;
-      for(auto tileSet : tileSets)
-      {
-        if(tileSet.hasTile(tile.ID))
-        {
-          clip = tileSet.getTileRect(tile.ID);
-          int adj = i*clip.w;
-          tileSet.tileSetTexture.render((adj)%width, (i*clip.h)/height, gameWindow->renderer, 1, 1, &clip);
-          std::cout << (adj)%width << " " << (adj/width)*clip.h << std::endl;
-          break;
-        }
-      }
-
-
-    }
-
-    
-  }
-
-  exit(1);
-
 
   for(auto node : sceneNodes)
   {
@@ -159,7 +125,53 @@ void BasicNode::addComponent(std::string key, void (*newFunc)(Component<BasicNod
 
 // ------------------------------------------------------------
 
+TileNode::TileNode(Scene* _parent, tmx::Tileset tSet)
+{
+  parentScene = _parent;
+  tileSet = new adamLib::TileSet(adamLib::convertToAdamTileSet(tSet));
+  setTexture(tSet.getImagePath());
+}
 
+TileNode::~TileNode()
+{
+  delete tileSet;
+}
+
+void TileNode::render()
+{
+  for(auto& tileLayer : parentScene->tileLayers)
+  {
+    int i = -1;
+    for(auto& tile : tileLayer.tiles)
+    {
+      ++i;
+      if(!isTileInSet(tile.ID))
+        continue;
+
+      SDL_Rect clip;
+      clip = tileSet->getTileRect(tile.ID);
+      int adj = i*clip.w;
+      tileSet->tileSetTexture.setAlphaLevel(tileLayer.opacity*255);
+      tileSet->tileSetTexture.render(gameWindow->renderer, {(adj)%parentScene->width, (adj/parentScene->width)*clip.h}, &clip);
+    }
+
+  } 
+}
+
+void TileNode::performLogic()
+{
+
+}
+
+void TileNode::setTexture(std::string path)
+{
+  tileSet->tileSetTexture.loadFromFile(path, gameWindow->renderer);
+}
+
+bool TileNode::isTileInSet(int id)
+{
+  return tileSet->tSet.hasTile(id);
+}
 // ------------------------------------------------------------
 
 Camera::Camera() : Camera(0, 0, gameWindow->screenW, gameWindow->screenH)

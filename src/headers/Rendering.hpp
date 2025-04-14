@@ -59,7 +59,7 @@ public:
 
   bool loadFromText(const std::string text, SDL_Color textColor, SDL_Renderer* renderer, TTF_Font* font);
 
-  void render(int x, int y, SDL_Renderer* renderer, double wScale = 1.0, double hScale = 1.0, SDL_Rect* clip = nullptr, SDL_Rect* rSpace = nullptr, double angle = 0.0, SDL_Point center = {0,0}, SDL_Color colorMod = {0,0,0,0});
+  void render(SDL_Renderer* renderer, SDL_Rect rSpace, SDL_Rect* clip = nullptr, SDL_Color colorMod = {0,0,0,0}, double angle = 0.0, SDL_Point center = {0,0});
 
   void setBlendMode(SDL_BlendMode blendMode);
 

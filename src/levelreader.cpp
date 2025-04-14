@@ -31,13 +31,10 @@ Scene* newScene()
   Scene* newScene = new Scene(0, 0, SCREENW, SCREENH, 25, 0, 0);
   newScene->setCamera(0,0,SCREENW, SCREENH);
 
-  int tmp=0;
-  for(auto tSets : map.getTilesets())
+  for(auto tSet : map.getTilesets())
   {
-    adamLib::TileSet _tSet = adamLib::convertToAdamTileSet(tSets);
-    newScene->tileSets.push_back(_tSet);
-    newScene->tileSets[tmp].tileSetTexture.loadFromFile(tSets.getImagePath(), gameWindow->renderer);
-    tmp++;
+    TileNode* newNode = new TileNode(newScene, tSet);
+    newScene->sceneNodes.push_back(newNode);
   }
 
   const auto& layers = map.getLayers();
@@ -56,29 +53,29 @@ Scene* newScene()
     }
     else if(layer->getType() == tmx::Layer::Type::Tile)
     {
-
       adamLib::TileLayer tLayer = adamLib::convertToAdamTileLayer(layer->getLayerAs<tmx::TileLayer>());
-      
       newScene->tileLayers.push_back(tLayer);
-
-
-      int i = -1;
-      for(auto& tileLayer : newScene->tileLayers)
-      {
-        for(auto& tile : tileLayer.tiles)
-        {
-          ++i;
-          if(!tile.ID)
-            continue;
-
-          SDL_Rect tmp = {(i%newScene->tileGrid.ammNodeWidth)*newScene->tileGrid.widthNode, (i/newScene->tileGrid.ammNodeWidth)*newScene->tileGrid.heightNode, newScene->tileGrid.widthNode, newScene->tileGrid.heightNode};
-          newScene->tileGrid.placeObj(&tile, tmp);
-          //printf("TILE ID %d\n", tile.ID);
-
-        }
-
-      }
     }
+  }
+
+  int i = -1;
+  for(auto& tileLayer : newScene->tileLayers)
+  {
+    for(auto& tile : tileLayer.tiles)
+    {
+      ++i;
+      if(!tile.ID)
+        continue;
+
+      SDL_Rect tmp = {(i%newScene->tileGrid.ammNodeWidth)*newScene->tileGrid.widthNode, 
+                      (i/newScene->tileGrid.ammNodeWidth)*newScene->tileGrid.heightNode, 
+                      newScene->tileGrid.widthNode, newScene->tileGrid.heightNode
+                     };
+
+      newScene->tileGrid.placeObj(&tile, tmp);
+
+    }
+
   }
 
 

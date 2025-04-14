@@ -67,7 +67,22 @@ public:
 
 };
 
+class TileNode : public SceneNode
+{
+public:
+  TileNode(Scene* parent, tmx::Tileset tSet);
+  ~TileNode();
 
+  void render();
+  void performLogic();
+  void setTexture(std::string path);
+  bool isTileInSet(int id);
+
+  //this being a pointer is a workaround
+  //what does it work around?
+  //great question
+  adamLib::TileSet* tileSet;
+};
 
 
 class Camera
@@ -106,7 +121,6 @@ public:
 
   ObjGrid<adamLib::Tile> tileGrid;
   ObjGrid<SceneNode> objectGrid;
-  std::vector<adamLib::TileSet> tileSets;
   std::vector<adamLib::TileLayer> tileLayers;
 
 };

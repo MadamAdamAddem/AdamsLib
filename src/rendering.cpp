@@ -87,43 +87,25 @@ bool AdamTexture::loadFromText(const std::string text, SDL_Color textColor, SDL_
   return true;
 }
 
-void AdamTexture::render(int x, int y, SDL_Renderer* renderer, double wScale, double hScale, SDL_Rect* clip, SDL_Rect* rSpace, double angle, SDL_Point center, SDL_Color colorMod)
+void AdamTexture::render(SDL_Renderer* renderer, SDL_Rect rSpace, SDL_Rect* clip, SDL_Color colorMod, double angle, SDL_Point center)
 {
   if(texture == nullptr || renderer == nullptr)
+  {
+    std::cout << "Failed to render texture!" << std::endl;
     return;
-
-  //area to render
-  SDL_Rect renderSpace;
-  if(rSpace == nullptr)
-  {
-    renderSpace.x = x;
-    renderSpace.y = y;
-    renderSpace.w = tWidth * wScale;
-    renderSpace.h = tHeight * hScale;
-    rSpace = &renderSpace;
-  }
-  
-
-  
-
-
-  if(center.x == 0 && center.y == 0)
-  {
-    center.x = renderSpace.w;
-    center.y = 5;
   }
 
+  
   if(clip != nullptr)
   {
-    renderSpace.w = clip->w;
-    renderSpace.h = clip->h;
+    rSpace.w = clip->w;
+    rSpace.h = clip->h;
   }
 
   if(colorMod.a != 0)
     SDL_SetTextureColorMod(texture, colorMod.r, colorMod.g, colorMod.b);
   
-
-  SDL_RenderCopyEx(renderer, texture, clip, rSpace, angle, &center, SDL_FLIP_NONE);
+  SDL_RenderCopyEx(renderer, texture, clip, &rSpace, angle, &center, SDL_FLIP_NONE);
 }
 
 void AdamTexture::setBlendMode(SDL_BlendMode blendMode)
