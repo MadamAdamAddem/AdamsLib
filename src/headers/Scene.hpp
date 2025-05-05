@@ -75,13 +75,15 @@ public:
 
   void render();
   void performLogic();
-  void setTexture(std::string path);
+  void setTexture(AdamTexture * const _texture);
   bool isTileInSet(int id);
 
-  //this being a pointer is a workaround
+  //this being dynamically allocated is a workaround
   //what does it work around?
   //great question
   adamLib::TileSet* tileSet;
+  float opacity = 1;
+  std::vector<adamLib::Tile> tileVector;
 };
 
 
@@ -121,7 +123,7 @@ public:
 
   ObjGrid<adamLib::Tile> tileGrid;
   ObjGrid<SceneNode> objectGrid;
-  std::vector<adamLib::TileLayer> tileLayers;
+  std::vector<AdamTexture*> activeTextures;
 
 };
 

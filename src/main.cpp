@@ -14,7 +14,7 @@ int main()
   {  
     game->performGameLogic();
     gameWindow->renderGame();
-    reduceFrames(60);
+    std::cout << reduceFrames(60) << std::endl;
   }
 
   AdamClose();

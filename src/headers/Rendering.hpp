@@ -42,6 +42,7 @@ public:
 
   float globalRenderScale = 1.0f;
   bool useViewport = false;
+  int dT = 0;
   
 };
 

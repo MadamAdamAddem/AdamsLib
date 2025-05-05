@@ -6,6 +6,9 @@ To Do:
   Add animation support
   Delta-Time
   Implement controller inputs
+  Once every _ seconds function
+  Revamp to use smart pointers and const more often
+  Revamp to use encapsulation
 
 
 Req:

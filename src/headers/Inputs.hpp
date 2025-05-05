@@ -13,7 +13,7 @@ struct Mouse
 
 
 /*
-  Call as condition for main while loop.
+  Call as condition for main loop.
   Returns false when user clicks to exit program.
   Takes user input and adds to keyboardInputs vector.
   Clears keyboard and mouse vectors every frame.

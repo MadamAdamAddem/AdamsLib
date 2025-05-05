@@ -4,17 +4,17 @@
 #include <tmxlite/TileLayer.hpp>
 
 
-
-
-
-
 namespace adamLib {
   struct Tile{
 
-    int ID = 0;
+    unsigned int ID = 0;
+    int x, y;
+    int layer;
+    float opacity;
 
   }typedef Tile;
 
+  /*
   struct TileLayer{
 
     std::vector<Tile> tiles;
@@ -22,7 +22,7 @@ namespace adamLib {
     float opacity = 1;
     bool doCollision = true;
 
-  }typedef TileLayer;
+  }typedef TileLayer;*/
 
   struct TileSet{
     
@@ -33,12 +33,12 @@ namespace adamLib {
     SDL_Rect getTileRect(int id);
 
 
-    AdamTexture tileSetTexture;
+    AdamTexture* tileSetTexture;
 
 
   }typedef TileSet;
 
-  TileLayer convertToAdamTileLayer(tmx::TileLayer oldTileLayer);
+  //TileLayer convertToAdamTileLayer(tmx::TileLayer oldTileLayer);
   TileSet convertToAdamTileSet(tmx::Tileset oldTileSet);
 
 }

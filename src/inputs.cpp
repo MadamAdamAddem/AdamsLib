@@ -83,3 +83,8 @@ Uint32 reduceFrames(Uint32 desiredFPS)
     
   return frameTime;
 }
+
+int getDeltaTime()
+{
+
+}

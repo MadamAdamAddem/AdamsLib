@@ -19,9 +19,9 @@
         },
         "map.tmx": {
             "scale": 1.6033,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 266.9494168277927,
+                "x": 284.72525416328824,
                 "y": 66.73735420694817
             }
         }
@@ -29,14 +29,15 @@
     "last.imagePath": "/home/adam/Documents/Code/AdamsLib/src/levels",
     "map.lastUsedFormat": "tmx",
     "openFiles": [
-        "map.tmx"
+        "map.tmx",
+        "TSet1.tsx",
+        "TSet2.tsx"
     ],
     "project": "levelEditor.tiled-project",
     "recentFiles": [
+        "TSet2.tsx",
         "TSet1.tsx",
-        "map.tmx",
-        "map.tmx",
-        "TSet2.tsx"
+        "map.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

@@ -4,8 +4,6 @@
 
 Scene::Scene(float x, float y, float w, float h, int tileDim, int ammountTilesWide, int ammountTilesTall)
 {
-  tileLayers.reserve(3);
-
   width = w; height = h;
 
   camera = new Camera(x, y, gameWindow->screenW, gameWindow->screenH);
@@ -129,7 +127,6 @@ TileNode::TileNode(Scene* _parent, tmx::Tileset tSet)
 {
   parentScene = _parent;
   tileSet = new adamLib::TileSet(adamLib::convertToAdamTileSet(tSet));
-  setTexture(tSet.getImagePath());
 }
 
 TileNode::~TileNode()
@@ -139,37 +136,33 @@ TileNode::~TileNode()
 
 void TileNode::render()
 {
-  for(auto& tileLayer : parentScene->tileLayers)
+  for(auto& tile : tileVector)
   {
-    int i = -1;
-    for(auto& tile : tileLayer.tiles)
-    {
-      ++i;
-      if(!isTileInSet(tile.ID))
-        continue;
-
-      SDL_Rect clip;
-      clip = tileSet->getTileRect(tile.ID);
-      int adj = i*clip.w;
-      tileSet->tileSetTexture.setAlphaLevel(tileLayer.opacity*255);
-      tileSet->tileSetTexture.render(gameWindow->renderer, {(adj)%parentScene->width, (adj/parentScene->width)*clip.h}, &clip);
-    }
-
-  } 
+    SDL_Rect clip;
+    clip = tileSet->getTileRect(tile.ID);
+    tileSet->tileSetTexture->setAlphaLevel(tile.opacity*255);
+    tileSet->tileSetTexture->render(gameWindow->renderer, {tile.x, tile.y}, &clip);
+  }
 }
 
 void TileNode::performLogic()
 {
-
+  for(auto& tile : tileVector)
+  {
+    //do thing
+  }
 }
 
-void TileNode::setTexture(std::string path)
+void TileNode::setTexture(AdamTexture * const _texture)
 {
-  tileSet->tileSetTexture.loadFromFile(path, gameWindow->renderer);
+  tileSet->tileSetTexture = _texture;
 }
 
 bool TileNode::isTileInSet(int id)
 {
+  if(id == 0)
+    return false;
+  
   return tileSet->tSet.hasTile(id);
 }
 // ------------------------------------------------------------
