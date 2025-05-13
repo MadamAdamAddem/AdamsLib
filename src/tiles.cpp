@@ -32,5 +32,5 @@ tmx::Vector2u adamLib::TileSet::getTilePos(int id) {return tSet.getTile(id)->ima
 SDL_Rect adamLib::TileSet::getTileRect(int id) 
 {
   tmx::Vector2u pos = tSet.getTile(id)->imagePosition;
-  return {pos.x, pos.y, tSet.getTileSize().x, tSet.getTileSize().y};
+  return {(int)pos.x, (int)pos.y, (int)tSet.getTileSize().x, (int)tSet.getTileSize().y};
 }

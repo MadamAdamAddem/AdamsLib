@@ -86,5 +86,5 @@ Uint32 reduceFrames(Uint32 desiredFPS)
 
 int getDeltaTime()
 {
-
+  return 69420;
 }

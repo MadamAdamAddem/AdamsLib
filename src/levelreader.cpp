@@ -24,7 +24,7 @@ void logicXmlReader(Component<BasicNode*>* host)
 Scene* newScene()
 {
   tmx::Map map;
-  if(!map.load("levels/map.tmx"))
+  if(!map.load("../src/levels/map.tmx"))
     return nullptr;
 
 

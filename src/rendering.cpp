@@ -151,7 +151,7 @@ GameWindow::~GameWindow()
 
 void GameWindow::initAll()
 { 
-  std::string fontString = "assets/arial.ttf";
+  std::string fontString = "../src/assets/arial.ttf";
 
   window = ainitWindow();
   if(window == nullptr)
@@ -245,7 +245,7 @@ SDL_Window* GameWindow::ainitWindow()
 SDL_Renderer* GameWindow::ainitRenderer(bool vsync)
 {
   SDL_Renderer* tempRenderer = nullptr;
-  tempRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | (vsync) ? SDL_RENDERER_PRESENTVSYNC : 0);
+  tempRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | ((vsync) ? SDL_RENDERER_PRESENTVSYNC : 0));
 
   if(tempRenderer == nullptr)
   {
